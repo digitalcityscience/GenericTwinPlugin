@@ -29,6 +29,8 @@ THE SOFTWARE.
 
 #include "CoreMinimal.h"
 
+#include <type_traits>
+
 namespace GenericTwin
 {
 
@@ -77,6 +79,13 @@ class FGenericAssetFile;
 typedef TSharedPtr<FGenericAssetFile> GenericAssetFilePtr;
 
 class FCacheKey;
+
+template<typename E>
+constexpr auto CastToType(E e)
+{
+	return static_cast<typename std::underlying_type<E>::type>(e);
+}
+
 
 }	//	namespace GenericTwin
 

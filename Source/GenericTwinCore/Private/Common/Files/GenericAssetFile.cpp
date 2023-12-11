@@ -179,15 +179,15 @@ bool FGenericAssetFile::LoadFromCache(const FString &Url, const FString &CacheSl
 				{
 					switch(chunkHeader->ChunkId)
 					{
-						case EAssetChunkTypes::Texture2D:
+						case CastToType(EAssetChunkTypes::Texture2D):
 							m_TextureChunks.Add(reinterpret_cast<const FTexture2DChunk*> (chunkHeader));
 							break;
 
-						case EAssetChunkTypes::MeshSection:
+						case CastToType(EAssetChunkTypes::MeshSection):
 							m_MeshSectionChunks.Add(reinterpret_cast<const FMeshSectionChunk*> (chunkHeader));
 							break;
 
-						case EAssetChunkTypes::CustomData:
+						case CastToType(EAssetChunkTypes::CustomData):
 							m_CustomDataChunks.Add(reinterpret_cast<const FCustomDataChunk*> (chunkHeader));
 							break;
 					}

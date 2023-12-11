@@ -112,15 +112,13 @@ private:
 	uint64		m_TileId = 0;
 };
 
-}	//	namespace GenericTwin 
-
-
-FORCEINLINE uint32 GetTypeHash(const GenericTwin::TTileId &TileId)
+FORCEINLINE uint32 GetTypeHash(const TTileId& TileId)
 {
-	uint32 Hash = FCrc::MemCrc32(&TileId, sizeof(GenericTwin::TTileId));
+	uint32 Hash = FCrc::MemCrc32(&TileId, sizeof(TTileId));
 	return Hash;
 }
 
+}	//	namespace GenericTwin 
 
 /*
 	Some forward decalarations

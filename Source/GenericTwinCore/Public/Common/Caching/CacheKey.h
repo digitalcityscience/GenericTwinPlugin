@@ -108,9 +108,10 @@ inline bool FCacheKey::operator == (const FCacheKey &RHS) const
 	return m_Key == RHS.m_Key;
 }
 
-}	//	namespace GenericTwin
 
-inline uint32 GetTypeHash(const GenericTwin::FCacheKey& K)
+inline uint32 GetTypeHash(const FCacheKey& K)
 {
 	return K.GetTypeHash();
 }
+
+}	//	namespace GenericTwin

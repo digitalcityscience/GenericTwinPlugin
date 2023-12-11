@@ -235,6 +235,7 @@ ScenePtr FSceneFile::LoadFromFile(const FString &Url)
 	return ScenePtr();
 }
 
+
 ScenePtr FSceneFile::LoadFromCache(const FString &Url, const FString &CacheSlot)
 {
 	GenericTwin::FCacheKey key(Url);
@@ -265,19 +266,19 @@ ScenePtr FSceneFile::LoadFromCache(const FString &Url, const FString &CacheSlot)
 				{
 					switch(chunkHeader->ChunkId)
 					{
-						case EAssetChunkTypes::SceneNode:
+						case CastToType(EAssetChunkTypes::SceneNode):
 						// 	m_TextureChunks.Add(reinterpret_cast<const FTexture2DChunk*> (chunkHeader));
 							break;
 
-						case EAssetChunkTypes::SceneMesh:
+						case CastToType(EAssetChunkTypes::SceneMesh):
 						// 	m_MeshSectionChunks.Add(reinterpret_cast<const FMeshSectionChunk*> (chunkHeader));
 							break;
 
-						case EAssetChunkTypes::SceneMaterial:
+						case CastToType(EAssetChunkTypes::SceneMaterial):
 						// 	m_CustomDataChunks.Add(reinterpret_cast<const FCustomDataChunk*> (chunkHeader));
 							break;
 
-						case EAssetChunkTypes::Name:
+						case CastToType(EAssetChunkTypes::Name):
 						// 	m_CustomDataChunks.Add(reinterpret_cast<const FCustomDataChunk*> (chunkHeader));
 							break;
 					}

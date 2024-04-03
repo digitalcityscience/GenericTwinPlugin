@@ -65,6 +65,7 @@ public:
 
 	bool SaveAsBMP(const FString &FileName) const;
 
+	void AsColorArray(TArray<FColor> &DstArray);
 
 private:
 

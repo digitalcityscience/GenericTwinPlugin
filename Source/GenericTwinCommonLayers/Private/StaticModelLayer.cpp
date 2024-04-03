@@ -235,10 +235,14 @@ void UStaticModelLayer::loadModelDescriptionFile(const FString &ModelDescription
 				}
 			}
 		}
+		else
+		{
+			UE_LOG(LogStaticModelLayer, Warning, TEXT("Error parsing %s"), *ModelDescriptionFile);
+		}
 	}
 	else
 	{
-		UE_LOG(LogStaticModelLayer, Warning, TEXT("Faile to load odel description file %s"), *ModelDescriptionFile);
+		UE_LOG(LogStaticModelLayer, Warning, TEXT("Failed to load odel description file %s"), *ModelDescriptionFile);
 	}
 }
 

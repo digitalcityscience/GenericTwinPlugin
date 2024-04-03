@@ -45,6 +45,7 @@ public class GenericTwinCore : ModuleRules
 				"GeoReferencing",
 				"Json",
 				"ProceduralMeshComponent",
+				"MeshDescription",
 				"HTTP",
 				"OpenSSL",
 

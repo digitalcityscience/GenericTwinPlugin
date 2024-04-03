@@ -85,6 +85,38 @@ void SImage::Copy(const SImagePtr &Other, int32 X, int32 Y)
 	}
 }
 
+void SImage::AsColorArray(TArray<FColor> &DstArray)
+{
+	DstArray.Reserve(GetDataSize());
+
+	const uint8 *src = m_ImageData;
+	for(int32 row = 0; row < m_Height; ++row)
+	{
+		for(int32 col = 0; col < m_Width; ++col)
+		{
+			switch(m_Format)
+			{
+				case EFormat::GrayScale:
+					DstArray.Add( FColor(src[0], src[0], src[0], 255) );
+					src += 1;
+					break;
+				case EFormat::GrayScaleAlpha:
+					DstArray.Add( FColor(src[0], src[0], src[0], src[1]) );
+					src += 2;
+					break;
+				case EFormat::RGB:
+					DstArray.Add( FColor(src[0], src[1], src[2], 255) );
+					src += 3;
+					break;
+				case EFormat::RGBA:
+					DstArray.Add( FColor(src[0], src[1], src[2], src[3]) );
+					src += 4;
+					break;
+			}
+		}
+	}
+}
+
 FIntVector2 SImage::GetAlphaRange() const
 {
 	FIntVector2 range(255, 255);

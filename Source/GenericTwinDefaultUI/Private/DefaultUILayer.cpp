@@ -21,7 +21,7 @@ const SLayerMetaData& UDefaultUILayer::GetLayerMetaData()
 	return layerMetaData;
 }
 
-ULayerBase* UDefaultUILayer::Create(FTwinWorldContext &TwinWorldCtx, const FJsonObject &Parameters)
+ULayerBase* UDefaultUILayer::Create(FTwinWorldContext &TwinWorldCtx, const TSharedPtr<FJsonObject> &Parameters)
 {
 	UDefaultUILayer* layer = NewObject<UDefaultUILayer>(TwinWorldCtx.World, FName(), RF_Standalone);
 

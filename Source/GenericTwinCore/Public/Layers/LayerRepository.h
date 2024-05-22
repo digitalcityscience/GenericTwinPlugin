@@ -45,7 +45,7 @@ class GENERICTWINCORE_API LayerRepository
 {
 public:
 
-	typedef std::function< ULayerBase*(FTwinWorldContext&, const FJsonObject&) > CreateLayerFuncPtr;
+	typedef std::function< ULayerBase*(FTwinWorldContext&, const TSharedPtr<FJsonObject>&) > CreateLayerFuncPtr;
 
 	typedef std::function< TSharedPtr<FJsonObject>() > GetInitialConfigFuncPtr;
 
@@ -87,7 +87,7 @@ public:
 
 	TSharedPtr<FJsonObject> GetInitialConfiguration(const FString &LayerName) const;
 
-	ULayerBase* CreateLayer(FTwinWorldContext &TwinWorldCtx, const FString &LayerType, const FJsonObject &Parameters);
+	ULayerBase* CreateLayer(FTwinWorldContext &TwinWorldCtx, const FString &LayerType, const TSharedPtr<FJsonObject> &Parameters);
 
 private:
 

@@ -81,14 +81,14 @@ TSharedPtr<FJsonObject> UStaticModelLayer::GetDefaultConfiguration()
 	return defaultConfig;
 }
 
-ULayerBase* UStaticModelLayer::Create(FTwinWorldContext &TwinWorldCtx, const FJsonObject &Parameters)
+ULayerBase* UStaticModelLayer::Create(FTwinWorldContext &TwinWorldCtx, const TSharedPtr<FJsonObject> &Parameters)
 {
 	UStaticModelLayer *layer = NewObject<UStaticModelLayer>(TwinWorldCtx.World, FName(), RF_Standalone);
 
 	if(layer)
 	{
 		layer->OnConstruction(GetLayerMetaData(), ELayerPriority::Medium);
-		layer->extractParameters(Parameters);
+		layer->extractParameters(*Parameters);
 	}
 
 	return layer;

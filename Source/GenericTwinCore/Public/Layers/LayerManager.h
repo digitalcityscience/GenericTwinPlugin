@@ -67,7 +67,7 @@ public:
 	bool HasLayerOfType(const FString LayerType) const;
 	ULayerBase* GetLayer(int32 LayerId) const;
 
-	void CreateLayer(const FString &LayerType, const FJsonObject &Parameters);
+	void CreateLayer(const FString &LayerType, const TSharedPtr<FJsonObject> &Parameters);
 
 	UPROPERTY(BlueprintCallable)
 	FOnLayerListUpdated					OnLayerListUpdated;

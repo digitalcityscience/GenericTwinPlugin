@@ -71,14 +71,14 @@ TSharedPtr<FJsonObject> UStreamingModelLayer::GetDefaultConfiguration()
 	return defaultConfig;
 }
 
-ULayerBase* UStreamingModelLayer::Create(FTwinWorldContext &TwinWorldCtx, const FJsonObject &Parameters)
+ULayerBase* UStreamingModelLayer::Create(FTwinWorldContext &TwinWorldCtx, const TSharedPtr<FJsonObject> &Parameters)
 {
 	UStreamingModelLayer *layer = NewObject<UStreamingModelLayer>(TwinWorldCtx.World, FName(), RF_Standalone);
 
 	if(layer)
 	{
 		layer->OnConstruction(GetLayerMetaData(), ELayerPriority::Medium);
-		layer->ExtractParameters(Parameters, TwinWorldCtx);
+		layer->ExtractParameters(*Parameters, TwinWorldCtx);
 	}
 
 	return layer;

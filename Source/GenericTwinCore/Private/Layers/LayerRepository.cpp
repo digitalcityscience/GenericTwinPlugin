@@ -87,7 +87,7 @@ TSharedPtr<FJsonObject> LayerRepository::GetInitialConfiguration(const FString &
 	return TSharedPtr<FJsonObject>();
 }
 
-ULayerBase* LayerRepository::CreateLayer(FTwinWorldContext &TwinWorldCtx, const FString &LayerType, const FJsonObject &Parameters)
+ULayerBase* LayerRepository::CreateLayer(FTwinWorldContext &TwinWorldCtx, const FString &LayerType, const TSharedPtr<FJsonObject> &Parameters)
 {
 	std::map<FString, SLayerInfo>::iterator it = m_RegisteredLayers.find(LayerType);
 	if(it != m_RegisteredLayers.end())

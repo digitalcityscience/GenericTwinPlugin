@@ -19,7 +19,7 @@ class UDefaultUILayer	:	public ULayerBase
 public:
 
 	static const SLayerMetaData& GetLayerMetaData();
-	static ULayerBase* Create(FTwinWorldContext &TwinWorldCtx, const FJsonObject &Parameters);
+	static ULayerBase* Create(FTwinWorldContext &TwinWorldCtx, const TSharedPtr<FJsonObject> &Parameters);
 
 	virtual ~UDefaultUILayer();
 

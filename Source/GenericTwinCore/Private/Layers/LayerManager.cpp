@@ -58,7 +58,7 @@ void ULayerManager::Initialize(FTwinWorldContext &TwinWorldContext, const struct
 
 	for(const SLayerConfiguration &layerCfg : LayersConfiguration.Layers)
 	{
-		ULayerBase *layer = layerRep.CreateLayer(*m_TwinWorldContext, layerCfg.Type, layerCfg.Parameters.IsValid() ? (*layerCfg.Parameters) : FJsonObject());
+		ULayerBase *layer = layerRep.CreateLayer(*m_TwinWorldContext, layerCfg.Type, layerCfg.Parameters.IsValid() ? layerCfg.Parameters : TSharedPtr<FJsonObject> (new FJsonObject));
 		if(layer)
 		{
 			layer->SetCustomName(layerCfg.CustomName);
@@ -104,7 +104,7 @@ void ULayerManager::Shutdown()
 	}
 }
 
-void ULayerManager::CreateLayer(const FString &LayerType, const FJsonObject &Parameters)
+void ULayerManager::CreateLayer(const FString &LayerType, const TSharedPtr<FJsonObject> &Parameters)
 {
 	if(m_TwinWorldContext)
 	{

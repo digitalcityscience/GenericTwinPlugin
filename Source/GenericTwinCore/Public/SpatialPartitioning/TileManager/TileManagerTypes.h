@@ -130,3 +130,5 @@ class TileManager;
 typedef TObjectPtr<UTileBase>	TileBasePtr;
 
 DECLARE_DELEGATE_RetVal_OneParam(GenericTwin::TTileId, FMapLocationToTileId, const FVector&);
+
+DECLARE_DELEGATE_OneParam(FProcessTileFunction, UTileBase&);

@@ -151,8 +151,6 @@ public:
 
 	virtual void UpdateView(FTwinWorldContext &TwinWorldCtx, float DeltaSeconds) override;
 
-	// virtual void OnVisibilityChanged(FTwinWorldContext& TwinWorldCtx) override;
-
 	virtual void OnEndPlay(FTwinWorldContext& TwinWorldCtx) override;
 
 	/*

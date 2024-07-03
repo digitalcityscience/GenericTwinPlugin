@@ -84,6 +84,10 @@ public:
 
 	void DrawTileBorders();
 
+	void SetVisibility(bool NewVisibility);
+
+	void ForEachTile( FProcessTileFunction ProcessTileFunc );
+
 private:
 
 	void Purge(const FDateTime &CurrentTime);
@@ -104,6 +108,8 @@ private:
 	double										m_MaxLoadDistance = 0.0;
 
 	GenericTwin::LayerDependencyBasePtr			m_Dependency;
+
+	bool										m_IsVisible = true;
 
 	UPROPERTY()
 	TArray< UTileBase* >						m_AllocatedTiles;

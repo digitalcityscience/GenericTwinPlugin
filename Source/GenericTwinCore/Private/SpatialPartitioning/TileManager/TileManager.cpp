@@ -86,6 +86,11 @@ void UTileManager::Shutdown()
 	}
 }
 
+void UTileManager::SetVisibility(bool NewVisibility)
+{
+	m_IsVisible = NewVisibility;
+}
+
 void UTileManager::UpdateView(const FDateTime& CurrentTime, APawn &ViewPawn, const FConvexVolume &ViewFrustum, TArray<GenericTwin::TTileId> &MissingTiles)
 {
 	if (m_LocationMapper)
@@ -117,8 +122,11 @@ void UTileManager::UpdateView(const FDateTime& CurrentTime, APawn &ViewPawn, con
 							&& (ViewFrustum.Planes.IsEmpty() || ViewFrustum.IntersectBox(curTileCtr, curTileExtent))
 							)
 						{
-							currentlyVisible.Add(curTileId);
-							curTile->UpdateTileVisibility(1.0f);
+							if(m_IsVisible)
+							{
+								currentlyVisible.Add(curTileId);
+								curTile->UpdateTileVisibility(1.0f);
+							}
 
 							curTile->Touch(CurrentTime);
 						}
@@ -194,6 +202,20 @@ void UTileManager::DrawTileBorders()
 
 				DrawDebugBox(GetWorld(), curTileCtr, curTileExtent, color, false, 0.0f, 64, 100.0f);
 			}
+		}
+	}
+}
+
+void UTileManager::ForEachTile( FProcessTileFunction ProcessTileFunc )
+{
+	for(const auto &item : m_Tiles)
+	{
+		const TileBasePtr &tile = item.Value;
+		if	(	tile
+			&&	tile->GetTileLoadState() == ETileLoadState::Loaded
+			)
+		{
+			ProcessTileFunc.Execute( *(tile.Get()) );
 		}
 	}
 }

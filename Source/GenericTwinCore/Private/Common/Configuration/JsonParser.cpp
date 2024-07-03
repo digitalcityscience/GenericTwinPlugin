@@ -36,6 +36,15 @@ DEFINE_LOG_CATEGORY(LogJsonParser);
 namespace GenericTwin
 {
 
+FJsonParser::FJsonParser()
+{
+}
+
+FJsonParser::FJsonParser(const TSharedPtr<FJsonObject> &RootObjPtr)
+{
+	m_ObjectStack.Add(RootObjPtr);
+}
+
 bool FJsonParser::Load(const FString &JsonFileName)
 {
 	bool res = false;

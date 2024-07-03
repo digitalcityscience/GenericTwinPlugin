@@ -34,6 +34,7 @@ THE SOFTWARE.
 #include "TileLayerBase.generated.h" 
 
 class UTileManager;
+class UTileBase;
 
 UCLASS()
 class GENERICTWINCORE_API UTileLayerBase	:	public ULayerBase
@@ -51,6 +52,8 @@ public:
 
 	virtual void UpdateView(FTwinWorldContext &TwinWorldCtx, float DeltaSeconds) override;
 
+	virtual void OnVisibilityChanged(FTwinWorldContext &TwinWorldCtx) override;
+
 	virtual TileBasePtr CreateTile(FTwinWorldContext &TwinWorldCtx, const GenericTwin::TTileId &TileId);
 
 	TileBasePtr GetTile(const GenericTwin::TTileId &TileId);
@@ -58,6 +61,8 @@ public:
 	void SetDependency(GenericTwin::LayerDependencyBasePtr Dependency);
 
 	ELayerCoverage GetCoverage(const FBox2d &Area) const;
+
+	void ForEachTile( FProcessTileFunction ProcessTileFunc );
 
 private:
 

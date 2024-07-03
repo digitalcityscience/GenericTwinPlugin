@@ -39,6 +39,11 @@ void UTileLayerBase::OnEndPlay(FTwinWorldContext& TwinWorldCtx)
 		m_TileManager->Shutdown();
 }
 
+void UTileLayerBase::OnVisibilityChanged(FTwinWorldContext &TwinWorldCtx)
+{
+	m_TileManager->SetVisibility(m_isVisible);
+}
+
 void UTileLayerBase::UpdateView(FTwinWorldContext &TwinWorldCtx, float DeltaSeconds)
 {
 	if	(	TwinWorldCtx.Pawn != nullptr
@@ -108,4 +113,9 @@ void UTileLayerBase::SetDependency(GenericTwin::LayerDependencyBasePtr Dependenc
 ELayerCoverage UTileLayerBase::GetCoverage(const FBox2d &Area) const
 {
 	return m_TileManager ? m_TileManager->GetCoverage(Area) : ELayerCoverage::Undefined;
+}
+
+void UTileLayerBase::ForEachTile( FProcessTileFunction ProcessTileFunc )
+{
+	m_TileManager->ForEachTile(ProcessTileFunc);
 }

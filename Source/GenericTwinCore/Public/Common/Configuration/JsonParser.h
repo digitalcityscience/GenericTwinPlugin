@@ -69,6 +69,10 @@ class GENERICTWINCORE_API FJsonParser
 
 public:
 
+	FJsonParser();
+
+	explicit FJsonParser(const TSharedPtr<FJsonObject> &RootObjPtr);
+
 	bool Load(const FString &JsonFileName);
 
 	bool Parse(const TSharedPtr<FJsonObject> &RootObjPtr, const TArray<FJsonObjectMember> &Members);

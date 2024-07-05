@@ -29,6 +29,7 @@ public class GenericTwinCore : ModuleRules
 				"Core",
 
 				"ProceduralMeshComponent",
+				"RealtimeMeshComponent",
 			}
 			);
 			

@@ -28,7 +28,7 @@ THE SOFTWARE.
 #pragma once
 
 
-#include "CoreMinimal.h"
+#include "Common/BaseTypes.h"
 
 class UMaterialInterface;
 
@@ -51,7 +51,8 @@ struct GENERICTWINCORE_API SSceneMaterial
 
 	TMap<FString, FString>			Textures;
 
-	UMaterialInterface				*Material = 0;
+	MaterialProxyPtr				MaterialPtr;
+	// UMaterialInterface				*Material = 0;
 };
 
 
@@ -109,6 +110,12 @@ public:
 	void Visit(ISceneNodeVisitor &Visitor);
 
 	uint32 EstimateGeometryMemorySize() const;
+
+	/*
+	*	Apply material the whole scene
+	*/
+	void ApplyMaterial(const FString &MaterialReference);
+	//void ResolveMaterials(const TMap<FString, GenericTwin::SMaterialMappingItem> &ExactMaterialMap, const FString &MaterialReference);
 
 private:
 

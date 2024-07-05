@@ -78,6 +78,7 @@ public:
 
 	const FVector& GetTileCenter() const;
 	const FVector& GetTileExtent() const;
+	const FVector& GetWorldLocation() const;
 
 	void Touch(const FDateTime &CurrentTime);
 	void MarkAsEmpty();
@@ -85,6 +86,7 @@ public:
 
 	void SetTileId(const GenericTwin::TTileId &TileId);
 	const GenericTwin::TTileId& GetTileId() const;
+
 
 protected:
 
@@ -142,6 +144,11 @@ inline const FVector& UTileBase::GetTileCenter() const
 inline const FVector& UTileBase::GetTileExtent() const
 {
 	return m_TileExtent;
+}
+
+inline const FVector& UTileBase::GetWorldLocation() const
+{
+	return m_WorldLocation;
 }
 
 inline float UTileBase::GetTileVisibility() const

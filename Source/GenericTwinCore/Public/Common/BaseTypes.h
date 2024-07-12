@@ -34,6 +34,14 @@ THE SOFTWARE.
 namespace GenericTwin
 {
 
+enum class EJobType : uint8
+{
+	Undefined,
+	Background,
+	GameThread,
+	RenderThread
+};
+
 struct SMeshSection
 {
 	TArray< FVector >			Vertices;

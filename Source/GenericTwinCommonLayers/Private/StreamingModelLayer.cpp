@@ -29,6 +29,9 @@ THE SOFTWARE.
 #include "StreamingModelLayer.h"
 #include "StreamingModelTile.h"
 
+#include "Common/JobQueue/GenericTwinJobBase.h"
+#include "Common/JobQueue/GenericTwinJobDispatcher.h"
+
 #include "SpatialPartitioning/TileManager/TilingHelpers.h"
 
 #include "Streaming/TileIndexes/FileSystemTileIndex.h"
@@ -41,6 +44,7 @@ THE SOFTWARE.
 #include "Common/Files/SceneFile.h"
 
 #include "Misc/Paths.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 
 DEFINE_LOG_CATEGORY(LogStreamingModelLayer);
 
@@ -85,7 +89,6 @@ ULayerBase* UStreamingModelLayer::Create(FTwinWorldContext &TwinWorldCtx, const 
 }
 
 UStreamingModelLayer::UStreamingModelLayer()
-	:	m_JobQueue(TEXT("StreamingModelLayer"))
 {
 }
 
@@ -162,11 +165,45 @@ void UStreamingModelLayer::ExtractModelParameters(const FJsonObject &ParametersO
 
 void UStreamingModelLayer::InitializeLayer(FTwinWorldContext &TwinWorldCtx)
 {
+	class InitializeLayerJob	:	public GenericTwin::JobBase
+	{
+	public:
+
+		InitializeLayerJob(UStreamingModelLayer &Layer, const FString &ConfigFileName)
+			:	JobBase(GenericTwin::EJobType::Background)
+			,	m_Layer(Layer)
+			,	m_ConfigFileName(ConfigFileName)
+		{
+		}
+
+		virtual GenericTwin::TJobBasePtr Execute()
+		{
+			m_Success = m_Layer.m_TileIndex->Initialize(GenericTwin::FPathUtils::MakeAbsolutPath(m_ConfigFileName, FPaths::LaunchDir()), std::bind(&UStreamingModelLayer::ExtractModelParameters, &m_Layer, std::placeholders::_1));
+			return GenericTwin::TJobBasePtr();
+		}
+
+		virtual void OnJobFinished()
+		{
+			if(m_Success)
+			{
+				m_Layer.m_LocationMapper = new GenericTwin::BasicLocationMapper(m_Layer.m_TileIndex->GetReferenceLocation(), m_Layer.m_TileIndex->GetTileSize());
+				if(m_Layer.m_LocationMapper)
+				{
+					m_Layer.SetupTiling(*(m_Layer.m_LocationMapper), 5);
+				}
+			}
+		}
+
+	private:
+		UStreamingModelLayer		&m_Layer;
+		const FString				&m_ConfigFileName;
+		bool						m_Success = false;
+	};
+
 	if(m_TileIndex)
 	{
-		SInitializeRequest *req = new SInitializeRequest(m_StreamingConfigFile);
-		auto f = std::bind(&UStreamingModelLayer::HandleRequest, this, std::placeholders::_1);
-		m_JobQueue.QueueRequest(TSharedPtr<SRequest>(req), f);
+		TSharedPtr<InitializeLayerJob> jobPtr(new InitializeLayerJob(*this, m_StreamingConfigFile));
+		FGenericTwinJobDispatcher::DispatchJob(jobPtr);
 	}
 }
 
@@ -174,62 +211,10 @@ void UStreamingModelLayer::UpdateView(FTwinWorldContext &TwinWorldCtx, float Del
 {
 	Super::UpdateView(TwinWorldCtx, DeltaSeconds);
 
-	TSharedPtr<SResult> resultPtr;
-	if	(	m_JobQueue.GetResult(resultPtr)
-		&&	resultPtr
-		)
-	{
-		switch(resultPtr->Type)
-		{
-			case EType::Initialize:
-				if (resultPtr->Success)
-				{
-					SInitializeResult *initResult = static_cast<SInitializeResult*> (resultPtr.Get());
-
-					m_LocationMapper = new GenericTwin::BasicLocationMapper(m_TileIndex->GetReferenceLocation(), m_TileIndex->GetTileSize());
-					if(m_LocationMapper)
-					{
-						SetupTiling(*m_LocationMapper, 5);
-					}
-				}
-				break;
-
-			case EType::LoadTile:
-				{
-					UE_LOG(LogStreamingModelLayer, Log, TEXT("Model tile received, adding to world"));
-					SLoadTileResult *loadResult = static_cast<SLoadTileResult*> (resultPtr.Get()); 
-					TileBasePtr tile = GetTile(loadResult->TileId);
-					if (loadResult->Success)
-					{
-						UStreamingModelTile *modelTile = static_cast<UStreamingModelTile*> (tile.Get());
-
-						FVector2D tileOrigin = m_TileIndex->GetTileOrigin(loadResult->TileId);
-						FVector tileLocation;
-						TwinWorldCtx.GeoReferencingSystem->ProjectedToEngine(FVector(tileOrigin, 0.0), tileLocation);
-
-						UGenericTwinMaterialManager &matMgr = UGenericTwinMaterialManager::GetInstance();
-						matMgr.SetOverrideMaterial(m_ModelMaterial);
-						modelTile->AddToWorld(tileLocation, loadResult->ScenePtr);
-						matMgr.ClearOverrideMaterial();
-						UE_LOG(LogStreamingModelLayer, Log, TEXT("Done"));
-					}
-					else
-					{
-						if(tile)
-						{
-							tile->MarkAsEmpty();
-						}
-					}
-				}
-				break;
-		}
-	}
 }
 
 void UStreamingModelLayer::OnEndPlay(FTwinWorldContext& TwinWorldCtx)
 {
-	m_JobQueue.Stop();
-
 	Super::OnEndPlay(TwinWorldCtx);
 }
 
@@ -256,41 +241,90 @@ TileBasePtr UStreamingModelLayer::CreateTile(FTwinWorldContext &TwinWorldCtx, co
 
 FString UStreamingModelLayer::LoadTileModel(const GenericTwin::TTileId &TileId)
 {
-	SLoadTileRequest *request = new SLoadTileRequest(TileId, m_TileIndex->GetUrl(TileId), m_TileIndex->GetTileOrigin(TileId));
-	if(request)
+	class UploadModelJob : public GenericTwin::JobBase
 	{
-		auto f = std::bind(&UStreamingModelLayer::HandleRequest, this, std::placeholders::_1);
-		m_JobQueue.QueueRequest(TSharedPtr<SRequest>(request), f);
-		return m_TileIndex->GetUrl(TileId);
-	}
+	public:
+
+		UploadModelJob(UStreamingModelLayer& Layer, UStreamingModelTile *modelTile, const GenericTwin::ScenePtr& ScenePtr)
+			:	JobBase(GenericTwin::EJobType::Background)
+			,	m_Layer(Layer)
+			,	m_ModelTile(modelTile)
+			,	m_ScenePtr(ScenePtr)
+		{
+		}
+
+		virtual GenericTwin::TJobBasePtr Execute() override
+		{
+			m_ModelTile->SetScene(m_ScenePtr);
+			return GenericTwin::TJobBasePtr();
+		}
+
+	private:
+
+		UStreamingModelLayer		&m_Layer;
+		UStreamingModelTile			*m_ModelTile = 0;
+		GenericTwin::ScenePtr		m_ScenePtr;
+
+	};
+
+	class LoadModelJob	:	public GenericTwin::JobBase
+	{
+	public:
+
+		LoadModelJob(UStreamingModelLayer &Layer, const GenericTwin::TTileId &TileId, const FString &Url, const FVector2D &Origin)
+			:	JobBase(GenericTwin::EJobType::Background)
+			,	m_Layer(Layer)
+			,	m_TileId(TileId)
+			,	m_Url(Url)
+			,	m_Origin(Origin)
+		{
+		}
+
+		virtual GenericTwin::TJobBasePtr Execute() override
+		{
+			m_ScenePtr = m_Layer.LoadModel(m_Url, m_Origin);
+			return GenericTwin::TJobBasePtr();
+		}
+
+		virtual void OnJobFinished()
+		{
+			UE_LOG(LogStreamingModelLayer, Log, TEXT("Model tile received, adding to world"));
+			TileBasePtr tile = m_Layer.GetTile(m_TileId);
+			if (m_ScenePtr.IsValid())
+			{
+				m_ScenePtr->ApplyMaterial(m_Layer.m_ModelMaterial);
+
+				UStreamingModelTile *modelTile = static_cast<UStreamingModelTile*> (tile.Get());
+				modelTile->AddToWorld(tile->GetWorldLocation());
+				
+				UE_LOG(LogStreamingModelLayer, Log, TEXT("Done"));
+
+				GenericTwin::ScenePtr scenePtr = m_ScenePtr;
+				FGenericTwinJobDispatcher::Dispatch<void()>([modelTile, scenePtr]() {modelTile->SetScene(scenePtr); }, GenericTwin::EJobType::Background);
+			}
+			else
+			{
+				if(tile)
+				{
+					tile->MarkAsEmpty();
+				}
+			}
+		}
+
+	private:
+		UStreamingModelLayer		&m_Layer;
+		GenericTwin::TTileId		m_TileId;
+		FString						m_Url;
+		FVector2D					m_Origin;
+
+		GenericTwin::ScenePtr		m_ScenePtr;
+	};
+
+
+	TSharedPtr<LoadModelJob> jobPtr(new LoadModelJob(*this, TileId, m_TileIndex->GetUrl(TileId), m_TileIndex->GetTileOrigin(TileId)));
+	FGenericTwinJobDispatcher::DispatchJob(jobPtr);
+
 	return FString();
-}
-
-TSharedPtr<UStreamingModelLayer::SResult> UStreamingModelLayer::HandleRequest(TSharedPtr<SRequest> Request)
-{
-	SResult *result = 0;
-
-	switch(Request->Type)
-	{
-		case EType::Initialize:
-			{
-				SInitializeRequest* initReq = static_cast<SInitializeRequest*> (Request.Get());
-				const bool success = m_TileIndex->Initialize(GenericTwin::FPathUtils::MakeAbsolutPath(m_StreamingConfigFile, FPaths::LaunchDir()), std::bind(&UStreamingModelLayer::ExtractModelParameters, this, std::placeholders::_1));
-				SInitializeResult *initRes = new SInitializeResult(success);
-				result = initRes;
-			}
-			break;
-
-		case EType::LoadTile:
-			{
-				SLoadTileRequest *request = static_cast<SLoadTileRequest*> (Request.Get());
-				GenericTwin::ScenePtr scenePtr = LoadModel(request->Url, request->Origin);
-				result = new SLoadTileResult(scenePtr, request->TileId);
-			}
-			break;
-	}
-
-	return TSharedPtr<SResult>(result);
 }
 
 GenericTwin::ScenePtr UStreamingModelLayer::LoadModel(const FString &ModelUrl, const FVector2D &Origin)

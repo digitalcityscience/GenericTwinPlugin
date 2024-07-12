@@ -30,8 +30,6 @@ THE SOFTWARE.
 #include "Streaming/TileStreamingLayer.h"
 #include "Layers/LayerTypes.h"
 
-#include "Common/JobQueue/TJobQueue.h"
-
 #include "StreamingModelLayer.generated.h" 
 
 
@@ -52,89 +50,6 @@ class GENERICTWINCOMMONLAYERS_API UStreamingModelLayer	:	public UTileStreamingLa
 	GENERATED_BODY()
 
 	typedef UTileStreamingLayer Super;
-
-private:
-
-	enum EType
-	{
-		None,
-		Initialize,
-		LoadTile
-	};
-
-	struct SRequest
-	{
-		SRequest(EType _Type)
-			:	Type(_Type)
-		{	}
-
-		EType						Type;
-	};
-
-	struct SResult
-	{
-		SResult(EType _Type, bool _Success)
-			:	Type(_Type)
-			,	Success(_Success)
-		{	}
-
-		virtual ~SResult()
-		{
-		}
-
-		EType		Type = EType::None;
-		bool		Success = false;
-	};
-
-	struct SInitializeRequest	:	public SRequest
-	{
-		SInitializeRequest(const FString &_StreamingConfigFile)
-			:	SRequest(EType::Initialize)
-			,	StreamingConfigFile(_StreamingConfigFile)
-		{	}
-
-		FString						StreamingConfigFile;
-	};
-
-	struct SInitializeResult	:	public SResult
-	{
-		SInitializeResult(bool _Success)
-			:	SResult(EType::Initialize, _Success)
-		{	}
-	};
-
-	struct SLoadTileRequest	:	public SRequest
-	{
-		SLoadTileRequest(const GenericTwin::TTileId &_TileId, const FString &_Url, const FVector2D &_Origin)
-			:	SRequest(EType::LoadTile)
-			,	TileId(_TileId)
-			,	Url(_Url)
-			,	Origin(_Origin)
-		{	}
-
-		GenericTwin::TTileId		TileId;
-		FString						Url;
-		FVector2D					Origin;
-	};
-
-	struct SLoadTileResult	:	public SResult
-	{
-		SLoadTileResult(const GenericTwin::ScenePtr &_ScenePtr, const GenericTwin::TTileId &_TileId)
-			:	SResult(EType::LoadTile, _ScenePtr.operator bool())
-			,	TileId(_TileId)
-			,	ScenePtr(_ScenePtr)
-		{	}
-
-		virtual ~SLoadTileResult()
-		{
-			ScenePtr.Reset();
-		}
-
-		GenericTwin::TTileId		TileId;
-		GenericTwin::ScenePtr		ScenePtr;
-	};
-
-	typedef TJobQueue<TSharedPtr<SRequest>, TSharedPtr<SResult>>	TJobQueue;
 
 public:
 
@@ -169,15 +84,11 @@ private:
 
 	void ExtractModelParameters(const FJsonObject &ParametersObject);
 
-	TSharedPtr<SResult> HandleRequest(TSharedPtr<SRequest> Request);
-
 	GenericTwin::ScenePtr LoadModel(const FString &TileUrl, const FVector2D &Origin);
 
 	GenericTwin::TTileId MapLocationToTileId(const FVector& Location);
 
 	FString								m_CacheSlot;
-
-	TJobQueue							m_JobQueue;
 
 	FString								m_StreamingConfigFile;
 	GenericTwin::ITileIndex				*m_TileIndex = 0;

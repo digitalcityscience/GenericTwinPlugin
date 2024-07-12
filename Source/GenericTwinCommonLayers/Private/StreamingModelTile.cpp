@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 
 #include "StreamingModelTile.h"
-#include "Actors/GenericTwinCustomMeshActor.h"
+#include "Actors/GenericTwinStaticMeshActor.h"
 
 #include "StreamingModelLayer.h"
 
@@ -109,16 +109,49 @@ FString UStreamingModelTile::GetTileName() const
 
 void UStreamingModelTile::AddToWorld(const FVector &Location, const GenericTwin::ScenePtr &ScenePtr)
 {
+	// if(m_Actor)
+	// {
+	// 	m_Actor->SetActorLocation(Location);
+	// }
+	// else
+	// {
+	// 	m_Actor = GetWorld()->SpawnActor<AGenericTwinStaticMeshActor>(Location, FRotator::ZeroRotator, FActorSpawnParameters());
+	// 	OnTileVisibilityChanged();
+	// }
+
+	// if(m_Actor)
+	// {
+	// 	m_Actor->SetFlattenedScene(ScenePtr);
+
+	// 	UE_LOG(LogStreamingModelTile, Log, TEXT("StreamingModelTile %s[%s] added for %s <-> %s Url: %s"), *(GetTileName()), *(m_TileId.ToString()), *((GetTileCenter() - GetTileExtent()).ToString()), *((GetTileCenter() + GetTileExtent()).ToString()), *m_Url);
+
+	// 	m_EstimatedGPUMemoryUsage = m_Actor->GetEstimatedGPUMemoryUsage();
+	// 	m_HeapMemoryUsage = sizeof(UStreamingModelTile);
+	// }
+
+	// m_TileLoadState = ETileLoadState::Loaded;
+}
+
+
+void UStreamingModelTile::AddToWorld(const FVector &Location)
+{
 	if(m_Actor)
 	{
 		m_Actor->SetActorLocation(Location);
 	}
 	else
 	{
-		m_Actor = GetWorld()->SpawnActor<AGenericTwinCustomMeshActor>(Location, FRotator::ZeroRotator, FActorSpawnParameters());
+		m_Actor = GetWorld()->SpawnActor<AGenericTwinStaticMeshActor>(Location, FRotator::ZeroRotator, FActorSpawnParameters());
 		OnTileVisibilityChanged();
+		m_Actor->Initialize();
 	}
 
+	m_TileLoadState = ETileLoadState::Loaded;
+}
+
+
+void UStreamingModelTile::SetScene(const GenericTwin::ScenePtr &ScenePtr)
+{
 	if(m_Actor)
 	{
 		m_Actor->SetFlattenedScene(ScenePtr);
@@ -129,5 +162,4 @@ void UStreamingModelTile::AddToWorld(const FVector &Location, const GenericTwin:
 		m_HeapMemoryUsage = sizeof(UStreamingModelTile);
 	}
 
-	m_TileLoadState = ETileLoadState::Loaded;
 }

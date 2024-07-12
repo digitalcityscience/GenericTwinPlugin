@@ -376,10 +376,8 @@ void UStaticModelLayer::CreateModelActor(FTwinWorldContext &TwinWorldCtx, Generi
 
 	if(modelActor)
 	{
-		UGenericTwinMaterialManager& matMgr = UGenericTwinMaterialManager::GetInstance();
-		matMgr.SetExactMaterialMapping(mdlData.MaterialMappings);
+		ScenePtr->ResolveMaterials(mdlData.MaterialMappings);
 		modelActor->SetFlattenedScene(ScenePtr);
 		m_Actors.Add(modelActor);
-		matMgr.ClearExactMaterialMapping();
 	}
 }

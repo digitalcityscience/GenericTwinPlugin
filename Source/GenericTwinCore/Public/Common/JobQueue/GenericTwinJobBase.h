@@ -27,7 +27,7 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "CoreMinimal.h"
+#include "Common/BaseTypes.h"
 
 
 namespace GenericTwin {
@@ -39,14 +39,6 @@ typedef TSharedPtr<JobBase> TJobBasePtr;
 class GENERICTWINCORE_API JobBase
 {
 public:
-
-	enum class EJobType : uint8
-	{
-		Undefined,
-		Background,
-		GameThread,
-		RenderThread
-	};
 
 	JobBase(EJobType JobType);
 
@@ -73,7 +65,7 @@ inline JobBase::~JobBase()
 {
 }
 
-inline JobBase::EJobType JobBase::GetJobType() const
+inline EJobType JobBase::GetJobType() const
 {
 	return m_JobType;
 }

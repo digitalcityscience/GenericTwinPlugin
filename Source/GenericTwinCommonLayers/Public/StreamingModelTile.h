@@ -33,7 +33,7 @@ THE SOFTWARE.
 
 DECLARE_LOG_CATEGORY_EXTERN(LogStreamingModelTile, Log, All);
 
-class AGenericTwinCustomMeshActor;
+class AGenericTwinStaticMeshActor;
 class UStreamingModelLayer;
 
 UCLASS()
@@ -62,12 +62,16 @@ public:
 
 	void AddToWorld(const FVector &Location, const GenericTwin::ScenePtr &ScenePtr);
 
+	void AddToWorld(const FVector &Location);
+
+	void SetScene(const GenericTwin::ScenePtr &ScenePtr);
+
 private:
 
 	UStreamingModelLayer						*m_Layer = 0;
 
 	UPROPERTY()
-	TObjectPtr<AGenericTwinCustomMeshActor>		m_Actor;
+	TObjectPtr<AGenericTwinStaticMeshActor>		m_Actor;
 
 	FString										m_Url;
 

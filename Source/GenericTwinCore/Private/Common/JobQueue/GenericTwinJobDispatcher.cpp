@@ -61,22 +61,22 @@ void FGenericTwinJobDispatcher::DispatchJob(const GenericTwin::TJobBasePtr &JobP
 		&&	JobPtr
 		)
 	{
-		const GenericTwin::JobBase::EJobType jobType = JobPtr->GetJobType();
+		const GenericTwin::EJobType jobType = JobPtr->GetJobType();
 
 		switch(jobType)
 		{
-			case GenericTwin::JobBase::EJobType::Background:
+			case GenericTwin::EJobType::Background:
 				{
 					auto f = std::bind(&FGenericTwinJobDispatcher::ExecuteJob, s_Instance, std::placeholders::_1);
 					s_Instance->m_BackgroundJobQueue.QueueRequest(SRequest(JobPtr), f);
 				}
 				break;
 
-			case GenericTwin::JobBase::EJobType::GameThread:
+			case GenericTwin::EJobType::GameThread:
 				s_Instance->m_GameThreadJobQueue.Enqueue(JobPtr);
 				break;
 
-			case GenericTwin::JobBase::EJobType::RenderThread:
+			case GenericTwin::EJobType::RenderThread:
 				// Not implemented yet
 				break;
 

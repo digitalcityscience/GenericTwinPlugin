@@ -30,6 +30,7 @@ THE SOFTWARE.
 
 #include "RealtimeMeshSimple.h"
 #include "Mesh/RealtimeMeshBuilder.h"
+#include "Mesh/RealtimeMeshBlueprintMeshBuilder.h"
 
 UGenericTwinStaticRTMComponent::~UGenericTwinStaticRTMComponent()
 {
@@ -117,10 +118,83 @@ int32 UGenericTwinStaticRTMComponent::AddMeshSections(const TArray<const Generic
     return -1;
 }
 
+#if 1
+
 template<typename INDEXTYPE>
 void UGenericTwinStaticRTMComponent::BuildMeshSection(const SMeshSectionData &MeshSectionData)
 {
 	FRealtimeMeshStreamSet StreamSet;
+	// TRealtimeMeshBuilderLocal<INDEXTYPE, FPackedNormal, FVector2DHalf, 1> Builder(StreamSet);
+
+
+	{
+		TRealtimeMeshStreamBuilder<FVector3f> PositionBuilder(StreamSet.AddStream(FRealtimeMeshStreams::Position, GetRealtimeMeshBufferLayout<FVector3f>()));
+		PositionBuilder.Reserve(MeshSectionData.Vertices.Num());
+		for(int32 i = 0; i < MeshSectionData.Vertices.Num(); ++i)
+		{
+			const FVector &p = MeshSectionData.Vertices[i];
+			PositionBuilder.Add(FVector3f(p.X, p.Y, p.Z));
+		}
+	}
+
+	{
+		TRealtimeMeshStreamBuilder<TIndex3<uint32>, TIndex3<INDEXTYPE>> trianglesBuilder(StreamSet.AddStream(FRealtimeMeshStreams::Triangles, GetRealtimeMeshBufferLayout<TIndex3<INDEXTYPE>>()));
+		const int32 numTris = 3 * (MeshSectionData.Indices.Num() / 3);
+		for(int32 i = 0; i < numTris; i += 3)
+		{
+			trianglesBuilder.Add(TIndex3<uint32>(MeshSectionData.Indices[i], MeshSectionData.Indices[i + 1], MeshSectionData.Indices[i + 2]));
+		}
+	}
+
+	if(MeshSectionData.UV0 != nullptr)
+	{
+		TRealtimeMeshStreamBuilder<FVector2f, FVector2DHalf> uv0(StreamSet.AddStream(FRealtimeMeshStreams::TexCoords, GetRealtimeMeshBufferLayout<FVector2DHalf>()));
+		uv0.Reserve(MeshSectionData.Vertices.Num());
+		for(int32 i = 0; i < MeshSectionData.Vertices.Num(); ++i)
+		{
+			uv0.Add(FVector2f((*MeshSectionData.UV0)[i]));
+		}
+
+		if(MeshSectionData.UV1 != nullptr)
+		{
+			TRealtimeMeshStreamBuilder<FVector2f, FVector2DHalf> uv1(StreamSet.AddStream(FRealtimeMeshStreams::TexCoords, GetRealtimeMeshBufferLayout<FVector2DHalf>()));
+			uv1.Reserve(MeshSectionData.Vertices.Num());
+			for(int32 i = 0; i < MeshSectionData.Vertices.Num(); ++i)
+			{
+				uv1.Add(FVector2f((*MeshSectionData.UV1)[i]));
+			}
+		}
+	}
+
+	if(MeshSectionData.Normals != nullptr)
+	{
+		TRealtimeMeshStreamBuilder<FRealtimeMeshTangentsHighPrecision, FRealtimeMeshTangentsNormalPrecision> TangentBuilder(StreamSet.AddStream(FRealtimeMeshStreams::Tangents, GetRealtimeMeshBufferLayout<FRealtimeMeshTangentsNormalPrecision>()));
+		TangentBuilder.Reserve(MeshSectionData.Vertices.Num());
+
+		for(int32 i = 0; i < MeshSectionData.Vertices.Num(); ++i)
+		{
+			const FVector& n = MeshSectionData.Normals->operator[] (i);
+			TangentBuilder.Add(FRealtimeMeshTangentsHighPrecision(FVector3f(n.X, n.Y, n.Z), FVector3f(0.0f, 0.0f, 0.0f)));
+		}
+
+	}
+
+	m_Mesh->SetupMaterialSlot(m_numSections, FName(TEXT("MaterialSlot_") + FString::FromInt(m_numSections)));
+
+    const int32 curLOD = 0;
+	const FRealtimeMeshSectionGroupKey GroupKey = FRealtimeMeshSectionGroupKey::CreateUnique(curLOD);
+	const FRealtimeMeshSectionKey MeshSectionKey = FRealtimeMeshSectionKey::CreateUnique(GroupKey);
+	m_Mesh->CreateSectionGroup(GroupKey, StreamSet);
+    m_Mesh->CreateSection(MeshSectionKey, FRealtimeMeshSectionConfig(ERealtimeMeshSectionDrawType::Static, m_numSections), FRealtimeMeshStreamRange(0, MeshSectionData.Vertices.Num(), 0, MeshSectionData.Indices.Num()), true);
+}
+
+#else
+
+template<typename INDEXTYPE>
+void UGenericTwinStaticRTMComponent::BuildMeshSection(const SMeshSectionData &MeshSectionData)
+{
+	FRealtimeMeshStreamSet StreamSet;
+
 	TRealtimeMeshBuilderLocal<INDEXTYPE, FPackedNormal, FVector2DHalf, 1> Builder(StreamSet);
 
     if(MeshSectionData.Normals != nullptr)
@@ -130,7 +204,8 @@ void UGenericTwinStaticRTMComponent::BuildMeshSection(const SMeshSectionData &Me
 
 	if(MeshSectionData.UV0 != nullptr)
 	{
-		Builder.EnableTexCoords();
+		Builder.EnableTexCoords(1);
+		// Builder.EnableTexCoords(MeshSectionData.UV1 != nullptr ? 2 : 1);
 	}
 
 	for(int32 i = 0; i < MeshSectionData.Vertices.Num(); ++i)
@@ -141,10 +216,10 @@ void UGenericTwinStaticRTMComponent::BuildMeshSection(const SMeshSectionData &Me
         if(MeshSectionData.UV0 != 0)
 		{
 			vertexBuilder.SetTexCoord(FVector2f((*MeshSectionData.UV0)[i]));
-			if(MeshSectionData.UV1 != 0)
-			{
-				vertexBuilder.SetTexCoord(1, FVector2f((*MeshSectionData.UV1)[i]));
-			}
+			// if(MeshSectionData.UV1 != 0)
+			// {
+			// 	vertexBuilder.SetTexCoord(1, FVector2f((*MeshSectionData.UV1)[i]));
+			// }
 		}
 	}
 
@@ -162,6 +237,8 @@ void UGenericTwinStaticRTMComponent::BuildMeshSection(const SMeshSectionData &Me
 	m_Mesh->CreateSectionGroup(GroupKey, StreamSet);
     m_Mesh->CreateSection(MeshSectionKey, FRealtimeMeshSectionConfig(ERealtimeMeshSectionDrawType::Static, m_numSections), FRealtimeMeshStreamRange(0, MeshSectionData.Vertices.Num(), 0, MeshSectionData.Indices.Num()), true);
 }
+
+#endif
 
 void UGenericTwinStaticRTMComponent::SetMaterial(int32 ElementIndex, UMaterialInterface* Material)
 {

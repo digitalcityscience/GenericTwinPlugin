@@ -28,7 +28,7 @@ THE SOFTWARE.
 #pragma once
 
 #include "Common/JobQueue/TJobQueue.h"
-
+#include "Common/JobQueue/GenericTwinJobBase.h"
 #include "Tickable.h"
 
 namespace GenericTwin {
@@ -80,6 +80,9 @@ public:
 
 	static void DispatchJob(const GenericTwin::TJobBasePtr &TJobBasePtr);
 
+	template<typename FuncType>
+	static void Dispatch(TFunction<FuncType> Function, GenericTwin::EJobType JobType);
+
 	/*
 	*	FTickableGameObject
 	*/
@@ -102,3 +105,32 @@ private:
 
 };
 
+
+template<typename FuncType>
+inline void FGenericTwinJobDispatcher::Dispatch(TFunction<FuncType> Function, GenericTwin::EJobType JobType)
+{
+	class Job	:	public GenericTwin::JobBase
+	{
+	public:
+
+		Job(TFunction<FuncType> Function, GenericTwin::EJobType JobType)
+			:	JobBase(JobType)
+			,	m_Function(Function)
+		{
+		}
+
+		virtual GenericTwin::TJobBasePtr Execute() override
+		{
+			m_Function();
+			return GenericTwin::TJobBasePtr();
+		}
+
+	private:
+
+		TFunction<FuncType>		m_Function;
+
+	};
+
+	TSharedPtr<Job> jobPtr(new Job(Function, JobType));
+	FGenericTwinJobDispatcher::DispatchJob(jobPtr);
+}

@@ -30,6 +30,7 @@ THE SOFTWARE.
 
 #include "Common/Material/GenericTwinMaterialManager.h"
 #include "Common/Material/MaterialProxy.h"
+#include "Common/Material/MaterialMappingItem.h"
 
 
 namespace GenericTwin
@@ -141,20 +142,18 @@ void SScene::ApplyMaterial(const FString &MaterialReference)
 	for(auto &item : m_Materials)
 	{
 		item.Value->MaterialPtr = matMgr.GetMaterial(*(item.Value), MaterialReference);
-		// GenericTwin::MaterialProxyPtr matProxyPtr = matMgr.GetMaterial(*(item.Value), MaterialReference);
-		// if	(	matProxyPtr
-		// 	&&	matProxyPtr->IsValid()
-		// 	)
-		// {
-		// 	item.Value->Material = matProxyPtr->GetMaterial();
-		// }
 	}
 }
 
-// void SScene::ResolveMaterials(const TMap<FString, GenericTwin::SMaterialMappingItem> &ExactMaterialMap, const FString &MaterialReference)
-// {
-
-// }
+void SScene::ResolveMaterials(const TMap<FString, GenericTwin::SMaterialMappingItem> &ExactMaterialMap)
+{
+	TMap<FString, GenericTwin::SMaterialMappingItem> exactMatMap(ExactMaterialMap);
+	UGenericTwinMaterialManager &matMgr = UGenericTwinMaterialManager::GetInstance();
+	for(auto &item : m_Materials)
+	{
+		item.Value->MaterialPtr = matMgr.GetMaterial(*(item.Value), exactMatMap);
+	}
+}
 
 void SSceneNode::Visit(const SScene &Scene, ISceneNodeVisitor &Visitor)
 {

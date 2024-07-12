@@ -30,11 +30,10 @@ THE SOFTWARE.
 
 #include "Common/BaseTypes.h"
 
-class UMaterialInterface;
-
 namespace GenericTwin
 {
 
+struct SMaterialMappingItem;
 class ISceneNodeVisitor;
 
 struct GENERICTWINCORE_API SSceneMaterial
@@ -52,7 +51,6 @@ struct GENERICTWINCORE_API SSceneMaterial
 	TMap<FString, FString>			Textures;
 
 	MaterialProxyPtr				MaterialPtr;
-	// UMaterialInterface				*Material = 0;
 };
 
 
@@ -115,7 +113,7 @@ public:
 	*	Apply material the whole scene
 	*/
 	void ApplyMaterial(const FString &MaterialReference);
-	//void ResolveMaterials(const TMap<FString, GenericTwin::SMaterialMappingItem> &ExactMaterialMap, const FString &MaterialReference);
+	void ResolveMaterials(const TMap<FString, GenericTwin::SMaterialMappingItem> &ExactMaterialMap);
 
 private:
 

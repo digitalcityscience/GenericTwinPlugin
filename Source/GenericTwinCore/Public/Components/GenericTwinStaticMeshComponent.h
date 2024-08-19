@@ -38,7 +38,7 @@ namespace GenericTwin
 
 struct SMeshSection;
 
-class IStaticMeshComponent
+class GENERICTWINCORE_API IStaticMeshComponent
 {
 
 public:
@@ -54,6 +54,7 @@ public:
 
 	virtual ~IStaticMeshComponent();
 
+	virtual void Construct(AActor *Actor, EUploadMode UploadMode) = 0;
 	virtual void Initialize(EUploadMode UploadMode) = 0;
 	virtual void Clear() = 0;
 	virtual int32 AddMeshSection(const SMeshSection &MeshSection, UMaterialInterface *Material) = 0;

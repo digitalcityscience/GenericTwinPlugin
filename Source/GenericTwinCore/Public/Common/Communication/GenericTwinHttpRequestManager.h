@@ -92,6 +92,8 @@ public:
 
 	int32 CreateRequest(const FString &Domain, const FString &Path, ERequestMethod RequestMethod, const TArray<FString> &Headers = TArray<FString>());
 
+	int32 CreateRequest(const FString &Domain, const FString &Path, ERequestMethod RequestMethod, const TArray<TPair<FString, FString>> &Headers = {}, const TArray<TPair<FString, FString>> &Parameters = {});
+
 	bool SendRequest(int32 RequestId, FOnGenericTwinHttpResponse OnResponse, FOnGenericTwinHttpRequestError OnError);
 
 	void CancelRequest(int32 RequestId);
@@ -120,6 +122,8 @@ private:
 	virtual ~FGenericTwinHttpRequestManager();
 
 	TSharedPtr<SResponseData> PerformRequest(const SRequestData &RequestData);
+
+	FString EncodeUrl(const FString &BaseUrl, const TArray<TPair<FString, FString>> &Parameters);
 
 	static FGenericTwinHttpRequestManager			*s_Instance;
 

@@ -99,6 +99,28 @@ int32 FGenericTwinHttpRequestManager::CreateRequest(const FString &Domain, const
 	return reqId;
 }
 
+int32 FGenericTwinHttpRequestManager::CreateRequest(const FString &Domain, const FString &Path, ERequestMethod RequestMethod, const TArray<TPair<FString, FString>> &Headers, const TArray<TPair<FString, FString>> &Parameters)
+{
+	int32 reqId = m_nextRequestId++;
+
+	SRequestData request;
+
+	request.RequestId = reqId;
+	request.Domain = Domain;
+	request.Path = Parameters.IsEmpty() ? Path : EncodeUrl(Path, Parameters);
+	request.Method = RequestMethod;
+
+	for(const auto &item : Headers)
+	{
+		request.Headers.Add({item.Key, item.Value});
+	}
+
+
+	m_Requests.Add(reqId, request);
+
+	return reqId;
+}
+
 void FGenericTwinHttpRequestManager::SetTimeout(int32 RequestId, int32 TimeoutInS)
 {
 	if(m_Requests.Contains(RequestId))
@@ -181,6 +203,10 @@ TSharedPtr<FGenericTwinHttpRequestManager::SResponseData> FGenericTwinHttpReques
 						{
 							UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Permanently moved: %s"), *(FString(httpResponse->body.c_str())));
 						}
+						else if (httpResponse->status == 400)
+						{
+							UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Bad request: %s"), *(FString(httpResponse->body.c_str())));
+						}
 					}
 					else
 					{
@@ -222,4 +248,59 @@ bool FGenericTwinHttpRequestManager::SplitUrl(const FString &Url, FString &Domai
 	}
 
 	return res;
+}
+
+FString FGenericTwinHttpRequestManager::EncodeUrl(const FString &BaseUrl, const TArray<TPair<FString, FString>> &Parameters)
+{
+	FString encodedUrl(BaseUrl);
+
+	TCHAR sep = '?';
+	for(const auto &item : Parameters)
+	{
+		FString encoded;
+
+		for (const auto &c : item.Value)
+		{
+			if	(	c == TCHAR(':')
+				|| c == TCHAR('/')
+				)
+			{
+				char buf[16];
+				sprintf_s(buf, sizeof(buf), "%02X", static_cast<uint16_t> (c) );
+
+				encoded += TCHAR('%');
+				encoded += ANSI_TO_TCHAR(buf);
+			}
+			else
+			{
+				encoded += c;
+			}
+			// if (std::isalnum(c)) {
+			// 	escaped << c;
+			// } else if (c == '-') {
+			// 	escaped << c;
+			// } else if (c == '_') {
+			// 	escaped << c;
+			// } else if (c == '.') {
+			// 	escaped << c;
+			// } else if (c == '~') {
+			// 	escaped << c;
+			// } else if (c == '/') {
+			// 	escaped << c;
+			// } else {
+			// 	// Encode as %XX where XX is the hex value of the character
+			// 	escaped << '%' << std::setw(2) << int((unsigned char)c);
+			// }
+
+		}
+
+		encodedUrl += sep;
+		encodedUrl += item.Key;
+		encodedUrl += TCHAR('=');
+		encodedUrl += encoded;
+
+		sep = TCHAR('&');
+	}
+
+	return encodedUrl;
 }

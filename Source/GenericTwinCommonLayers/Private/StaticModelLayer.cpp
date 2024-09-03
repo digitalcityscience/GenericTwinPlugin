@@ -43,7 +43,7 @@ THE SOFTWARE.
 
 #include "Common/Material/GenericTwinMaterialManager.h"
 
-#include "Utils/PathUtils.h"
+#include "Utils/FilePathUtils.h"
 
 #include "GeoReferencingSystem.h"
 #include "Kismet/GameplayStatics.h"
@@ -319,7 +319,7 @@ UStaticModelLayer::SLoadModelResult* UStaticModelLayer::loadModel(const UStaticM
 	{
 		GenericTwin::SModelImportConfiguration importConfig;
 
-		importConfig.ImportTransform = Request.ModelData.ImportTransform;
+		// importConfig.ImportTransform = Request.ModelData.ImportTransform;
 		importConfig.FlipWindingOrder = Request.ModelData.FlipWindingOrder;
 		importConfig.FlipNormals = Request.ModelData.FlipNormals;
 
@@ -340,17 +340,17 @@ UStaticModelLayer::SLoadModelResult* UStaticModelLayer::loadModel(const UStaticM
 			GenericTwin::CalcSceneBoundingsVisitor sbVisitor;
 			scenePtr->Visit(sbVisitor);
 
-			const FVector &minExtent = sbVisitor.GetMinExtent();
-			const FVector &maxExtent = sbVisitor.GetMaxExtent();
+			// const FVector &minExtent = sbVisitor.GetMinExtent();
+			// const FVector &maxExtent = sbVisitor.GetMaxExtent();
 
-			FVector ctrOffset(0.5 * (minExtent.X + maxExtent.X), 0.5 * (minExtent.Y + maxExtent.Y), -minExtent.Z);
+			// FVector ctrOffset(0.5 * (minExtent.X + maxExtent.X), 0.5 * (minExtent.Y + maxExtent.Y), -minExtent.Z);
 
-			for(int32 i = 0; i < scenePtr->GetMeshCount(); ++i)
-			{
-				GenericTwin::SSceneMesh *mesh = scenePtr->GetMesh(i);
-				for(FVector &p : mesh->Vertices)
-					p -= ctrOffset;
-			}
+			// for(int32 i = 0; i < scenePtr->GetMeshCount(); ++i)
+			// {
+			// 	GenericTwin::SSceneMesh *mesh = scenePtr->GetMesh(i);
+			// 	for(FVector &p : mesh->Vertices)
+			// 		p -= ctrOffset;
+			// }
 
 			result->ScenePtr = scenePtr;
 

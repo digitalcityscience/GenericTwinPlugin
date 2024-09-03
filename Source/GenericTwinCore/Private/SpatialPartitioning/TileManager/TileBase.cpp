@@ -37,7 +37,7 @@ void UTileBase::Initialize(const FVector &Location, const FVector2D &TileSize)
 	m_WorldLocation = Location;
 	m_TileSize = TileSize;
 
-	UpdateBoundings(0.0, 1000.0);
+	UpdateBoundings(0.0, 20000.0);
 }
 
 void UTileBase::Shutdown()

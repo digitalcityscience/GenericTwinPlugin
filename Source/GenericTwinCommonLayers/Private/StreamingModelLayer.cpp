@@ -35,7 +35,7 @@ THE SOFTWARE.
 #include "SpatialPartitioning/TileManager/TilingHelpers.h"
 
 #include "Streaming/TileIndexes/FileSystemTileIndex.h"
-#include "Utils/PathUtils.h"
+#include "Utils/FilePathUtils.h"
 
 #include "Import/ModelImporter.h"
 #include "Import/ModelImportConfiguration.h"

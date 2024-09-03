@@ -36,7 +36,7 @@ THE SOFTWARE.
 #include "Common/Caching/LocalFileCache.h"
 #include "Common/Material/GenericTwinMaterialManager.h"
 
-#include "Utils/PathUtils.h"
+#include "Utils/FilePathUtils.h"
 
 #include "GeoReferencingSystem.h"
 

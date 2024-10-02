@@ -27,6 +27,7 @@ THE SOFTWARE.
 
 #include "GenericTwinCommonLayers.h"
 
+#include "GenericTwinAssetsLayer.h"
 #include "StaticModelLayer.h"
 #include "StreamingModelLayer.h"
 
@@ -36,6 +37,7 @@ THE SOFTWARE.
 
 void FGenericTwinCommonLayersModule::StartupModule()
 {
+	LayerRepository::GetInstance().RegisterLayer(UGenericTwinAssetsLayer::GetLayerMetaData(), &UGenericTwinAssetsLayer::Create, &UGenericTwinAssetsLayer::GetDefaultConfiguration);
 	LayerRepository::GetInstance().RegisterLayer(UStaticModelLayer::GetLayerMetaData(), &UStaticModelLayer::Create, &UStaticModelLayer::GetDefaultConfiguration);
 	LayerRepository::GetInstance().RegisterLayer(UStreamingModelLayer::GetLayerMetaData(), &UStreamingModelLayer::Create, &UStreamingModelLayer::GetDefaultConfiguration);
 }

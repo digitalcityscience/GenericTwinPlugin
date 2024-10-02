@@ -21,6 +21,11 @@
 			"LoadingPhase": "Default"
 		},
 		{
+			"Name": "GenericTwinUtils",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
 			"Name": "GenericTwinCommonLayers",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"

@@ -29,6 +29,8 @@ public:
 
 	const FString& GetConfigurationFileName() const;
 
+	const TSharedPtr<FJsonObject>& GetRootObject() const;
+
 private:
 
 	template<class T>
@@ -88,4 +90,9 @@ inline FString GenericConfiguration::getString(const FString &Key, const FString
 inline const FString& GenericConfiguration::GetConfigurationFileName() const
 {
 	return m_ConfigFileName;
+}
+
+inline const TSharedPtr<FJsonObject>& GenericConfiguration::GetRootObject() const
+{
+	return m_JsonObject;
 }

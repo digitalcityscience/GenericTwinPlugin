@@ -28,13 +28,13 @@ THE SOFTWARE.
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
-#include "GenericTwinLocationMarkerList.generated.h"
+#include "GameFramework/Info.h"
+#include "GenericTwinViewpoints.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogGenericTwinLocationMarkerList, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogGenericTwinViewpoints, Log, All);
 
 USTRUCT(BlueprintType)
-struct FGenericTwinLocationMarker
+struct FGenericTwinViewpoint
 {
 	GENERATED_BODY()
 
@@ -63,34 +63,41 @@ struct FGenericTwinLocationMarker
  * 
  */
 UCLASS(BlueprintType)
-class GENERICTWINUTILS_API UGenericTwinLocationMarkerList : public UObject
+class GENERICTWINUTILS_API AGenericTwinViewpoints : public AInfo
 {
 	GENERATED_BODY()
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category="GenericTwin|Utils|LocationMarker")
+	UFUNCTION(BlueprintPure, Category = "GenericTwin|Utils|Viewpoints", meta = (WorldContext = "WorldContextObject"))
+	static AGenericTwinViewpoints* GetGenericTwinViewpoints(UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category="GenericTwin|Utils|Viewpoints")
 	bool Load(const FString &Filename);
 
-	UFUNCTION(BlueprintCallable, Category="GenericTwin|Utils|LocationMarker")
-	void NextLocationMarker(bool WrapAround, bool &IsValid, FGenericTwinLocationMarker &LocationMarker);
+	UFUNCTION(BlueprintCallable, Category="GenericTwin|Utils|Viewpoints")
+	void NextViewpoint(bool WrapAround, bool &IsValid, FGenericTwinViewpoint &Viewpoint);
 
-	UFUNCTION(BlueprintCallable, Category="GenericTwin|Utils|LocationMarker")
-	void PreviousLocationMarker(bool WrapAround, bool &IsValid, FGenericTwinLocationMarker &LocationMarker);
+	UFUNCTION(BlueprintCallable, Category="GenericTwin|Utils|Viewpoints")
+	void PreviousViewpoint(bool WrapAround, bool &IsValid, FGenericTwinViewpoint &Viewpoint);
 
-	UFUNCTION(BlueprintCallable, Category="GenericTwin|Utils|LocationMarker")
-	void SetLocationMarker(int32 Index, bool &IsValid, FGenericTwinLocationMarker &LocationMarker);
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GenericTwin|Utils|Viewpoints")
+	void GetViewpoint(int32 Index, bool &IsValid, FGenericTwinViewpoint &Viewpoint);
 
-	UFUNCTION(BlueprintCallable, Category="GenericTwin|Utils|LocationMarker")
-	int32 GetLocationMarkerCount();
+	UFUNCTION(BlueprintCallable, Category="GenericTwin|Utils|Viewpoints")
+	int32 GetViewpointCount();
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category="GenericTwin|Utils|Viewpoints")
+	TArray<FString> GetViewpoints();
 
 private:
 
-	TArray<FGenericTwinLocationMarker>	LocationMarkers;
+	TArray<FGenericTwinViewpoint>			m_Viewpoints;
+	int32									m_curIndex = -1;
 
 };
 
-inline int32 UGenericTwinLocationMarkerList::GetLocationMarkerCount()
+inline int32 AGenericTwinViewpoints::GetViewpointCount()
 {
-	return LocationMarkers.Num();
+	return m_Viewpoints.Num();
 }

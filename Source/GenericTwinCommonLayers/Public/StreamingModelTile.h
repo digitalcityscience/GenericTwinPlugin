@@ -29,6 +29,8 @@ THE SOFTWARE.
 
 #include "SpatialPartitioning/TileManager/TileBase.h"
 
+#include "Components/GenericTwinStaticMeshComponent.h"
+
 #include "StreamingModelTile.generated.h" 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogStreamingModelTile, Log, All);
@@ -62,7 +64,7 @@ public:
 
 	void AddToWorld(const FVector &Location, const GenericTwin::ScenePtr &ScenePtr);
 
-	void AddToWorld(const FVector &Location);
+	GenericTwin::IStaticMeshComponent::EUploadMode AddToWorld(const FVector &Location);
 
 	void SetScene(const GenericTwin::ScenePtr &ScenePtr);
 

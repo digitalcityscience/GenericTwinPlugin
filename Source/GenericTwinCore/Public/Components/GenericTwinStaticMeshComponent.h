@@ -62,6 +62,8 @@ public:
 	virtual int32 AddMeshSections(const TArray<const SMeshSection*> &MeshSections, const TArray<UMaterialInterface*> &Materials)  = 0;
 	virtual USceneComponent* GetSceneComponent() = 0;
 
+	virtual EUploadMode GetUploadMode() const = 0;
+
 };
 
 

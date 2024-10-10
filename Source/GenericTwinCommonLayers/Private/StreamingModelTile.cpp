@@ -133,7 +133,7 @@ void UStreamingModelTile::AddToWorld(const FVector &Location, const GenericTwin:
 }
 
 
-void UStreamingModelTile::AddToWorld(const FVector &Location)
+GenericTwin::IStaticMeshComponent::EUploadMode UStreamingModelTile::AddToWorld(const FVector &Location)
 {
 	if(m_Actor)
 	{
@@ -147,6 +147,7 @@ void UStreamingModelTile::AddToWorld(const FVector &Location)
 	}
 
 	m_TileLoadState = ETileLoadState::Loaded;
+	return m_Actor->GetUploadMode();
 }
 
 

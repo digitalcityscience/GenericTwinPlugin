@@ -241,32 +241,6 @@ TileBasePtr UStreamingModelLayer::CreateTile(FTwinWorldContext &TwinWorldCtx, co
 
 FString UStreamingModelLayer::LoadTileModel(const GenericTwin::TTileId &TileId)
 {
-	class UploadModelJob : public GenericTwin::JobBase
-	{
-	public:
-
-		UploadModelJob(UStreamingModelLayer& Layer, UStreamingModelTile *modelTile, const GenericTwin::ScenePtr& ScenePtr)
-			:	JobBase(GenericTwin::EJobType::Background)
-			,	m_Layer(Layer)
-			,	m_ModelTile(modelTile)
-			,	m_ScenePtr(ScenePtr)
-		{
-		}
-
-		virtual GenericTwin::TJobBasePtr Execute() override
-		{
-			m_ModelTile->SetScene(m_ScenePtr);
-			return GenericTwin::TJobBasePtr();
-		}
-
-	private:
-
-		UStreamingModelLayer		&m_Layer;
-		UStreamingModelTile			*m_ModelTile = 0;
-		GenericTwin::ScenePtr		m_ScenePtr;
-
-	};
-
 	class LoadModelJob	:	public GenericTwin::JobBase
 	{
 	public:
@@ -295,12 +269,13 @@ FString UStreamingModelLayer::LoadTileModel(const GenericTwin::TTileId &TileId)
 				m_ScenePtr->ApplyMaterial(m_Layer.m_ModelMaterial);
 
 				UStreamingModelTile *modelTile = static_cast<UStreamingModelTile*> (tile.Get());
-				modelTile->AddToWorld(tile->GetWorldLocation());
-				
+				const auto uploadMode = modelTile->AddToWorld(tile->GetWorldLocation());
+				const auto jobType = uploadMode == GenericTwin::IStaticMeshComponent::EUploadMode::GameThread ? GenericTwin::EJobType::GameThread : GenericTwin::EJobType::Background;
+
 				UE_LOG(LogStreamingModelLayer, Log, TEXT("Done"));
 
 				GenericTwin::ScenePtr scenePtr = m_ScenePtr;
-				FGenericTwinJobDispatcher::Dispatch<void()>([modelTile, scenePtr]() {modelTile->SetScene(scenePtr); }, GenericTwin::EJobType::Background);
+				FGenericTwinJobDispatcher::Dispatch<void()>([modelTile, scenePtr]() {modelTile->SetScene(scenePtr); }, jobType);
 			}
 			else
 			{

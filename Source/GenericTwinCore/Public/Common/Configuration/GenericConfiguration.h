@@ -27,6 +27,8 @@ public:
 
 	FString getString(const FString &Key, const FString &DefaultValue = FString());
 
+	TArray<FString> GetStringList(const FString &Key);
+
 	const FString& GetConfigurationFileName() const;
 
 	const TSharedPtr<FJsonObject>& GetRootObject() const;

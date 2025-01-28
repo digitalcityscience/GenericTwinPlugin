@@ -62,6 +62,8 @@ private:
 	
 		TArray<TPair<FString, FString>>			Headers;
 
+		FString									Body;
+
 		int32									TimeoutS = -1.0;		
 
 		FOnGenericTwinHttpResponse				OnResponse;
@@ -93,6 +95,8 @@ public:
 	int32 CreateRequest(const FString &Domain, const FString &Path, ERequestMethod RequestMethod, const TArray<FString> &Headers = TArray<FString>());
 
 	int32 CreateRequest(const FString &Domain, const FString &Path, ERequestMethod RequestMethod, const TArray<TPair<FString, FString>> &Headers = {}, const TArray<TPair<FString, FString>> &Parameters = {});
+
+	int32 CreatePostRequestWithBody(const FString &Domain, const FString &Path, const FString &Body, const TArray<TPair<FString, FString>> &Headers = {});
 
 	bool SendRequest(int32 RequestId, FOnGenericTwinHttpResponse OnResponse, FOnGenericTwinHttpRequestError OnError);
 

@@ -64,3 +64,21 @@ bool GenericConfiguration::loadConfiguration(const FString &configFileName)
 	return res;
 }
 
+TArray<FString> GenericConfiguration::GetStringList(const FString &Key)
+{
+	TArray<FString> list;
+
+	if(m_JsonObject->HasTypedField<EJson::Array>(Key))
+	{
+		const TArray< TSharedPtr< FJsonValue > > &array = m_JsonObject->GetArrayField(Key);
+		for(const TSharedPtr< FJsonValue > &val : array)
+		{
+			if(val->Type == EJson::String)
+			{
+				list.Add(val->AsString());
+			}
+		}
+	}
+
+	return list;
+}

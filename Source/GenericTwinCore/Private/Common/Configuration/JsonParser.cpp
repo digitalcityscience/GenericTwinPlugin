@@ -40,6 +40,21 @@ FJsonParser::FJsonParser()
 {
 }
 
+FJsonParser::FJsonParser(const FString &JsonString)
+{
+	TSharedRef<TJsonReader<>> reader = TJsonReaderFactory<>::Create(JsonString);
+	JsonObjectPtr rootObjPtr;
+	if (FJsonSerializer::Deserialize(reader, rootObjPtr))
+	{
+		UE_LOG(LogJsonParser, Log, TEXT("Successfully deserialized json string"));
+		m_ObjectStack.Add(rootObjPtr);
+	}
+	else
+	{
+		UE_LOG(LogJsonParser, Error, TEXT("Not a valid json string"));
+	}
+}
+
 FJsonParser::FJsonParser(const TSharedPtr<FJsonObject> &RootObjPtr)
 {
 	m_ObjectStack.Add(RootObjPtr);
@@ -127,6 +142,15 @@ bool FJsonParser::ParseObject(const JsonObjectPtr &JsonObject, const TArray<FJso
 					{
 						int32 *dst = static_cast<int32*>(member.Destination);
 						*dst = static_cast<int32>(JsonObject->Values[member.Key]->AsNumber());
+						curRes = true;
+					}
+					break;
+
+				case EJsonDataType::Integer64:
+					if(JsonObject->Values[member.Key]->Type == EJson::Number)
+					{
+						int64 *dst = static_cast<int64*>(member.Destination);
+						*dst = static_cast<int64>(JsonObject->Values[member.Key]->AsNumber());
 						curRes = true;
 					}
 					break;
@@ -337,6 +361,7 @@ bool FJsonParser::CheckType(EJsonDataType DesiredType, EJson ValueType)
 		case EJsonDataType::Bool:
 			return ValueType == EJson::Boolean;
 		case EJsonDataType::Integer:
+		case EJsonDataType::Integer64:
 		case EJsonDataType::Float:
 		case EJsonDataType::Double:
 			return ValueType == EJson::Number;

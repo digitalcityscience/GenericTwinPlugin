@@ -121,6 +121,27 @@ int32 FGenericTwinHttpRequestManager::CreateRequest(const FString &Domain, const
 	return reqId;
 }
 
+int32 FGenericTwinHttpRequestManager::CreatePostRequestWithBody(const FString &Domain, const FString &Path, const FString &Body, const TArray<TPair<FString, FString>> &Headers)
+{
+	int32 reqId = m_nextRequestId++;
+
+	SRequestData request;
+	request.RequestId = reqId;
+	request.Domain = Domain;
+	request.Path = Path;
+	request.Method = ERequestMethod::POST;
+	request.Body = Body;
+
+	for(const auto &item : Headers)
+	{
+		request.Headers.Add({item.Key, item.Value});
+	}
+
+	m_Requests.Add(reqId, request);
+
+	return reqId;
+}
+
 void FGenericTwinHttpRequestManager::SetTimeout(int32 RequestId, int32 TimeoutInS)
 {
 	if(m_Requests.Contains(RequestId))
@@ -184,10 +205,44 @@ TSharedPtr<FGenericTwinHttpRequestManager::SResponseData> FGenericTwinHttpReques
 
 			case ERequestMethod::GET:
 				{
-					UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Sending request to %s <-> %s"), *RequestData.Domain, *RequestData.Path);
+					UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Sending GET request to %s <-> %s"), *RequestData.Domain, *RequestData.Path);
 
 					auto httpResponse = cli.Get(TCHAR_TO_ANSI(*RequestData.Path));
 
+
+					if (httpResponse)
+					{
+						UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Response received %d"), httpResponse->status);
+						responsePtr->ResponseCode = httpResponse->status;
+						responsePtr->StatusMessage = FString(httpResponse->reason.c_str());
+						if(httpResponse->status == 200)
+						{
+							responsePtr->Response = FString(httpResponse->body.c_str());
+							responsePtr->Success = true;
+						}
+						else if (httpResponse->status == 301)
+						{
+							UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Permanently moved: %s"), *(FString(httpResponse->body.c_str())));
+						}
+						else if (httpResponse->status == 400)
+						{
+							UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Bad request: %s"), *(FString(httpResponse->body.c_str())));
+						}
+					}
+					else
+					{
+						UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Request failed"));
+					}
+				}
+				break;
+
+			case ERequestMethod::POST:
+				{
+					UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Sending POST request to %s <-> %s"), *RequestData.Domain, *RequestData.Path);
+
+					httplib::Headers headers;
+					std::string contentType("application/x-www-form-urlencoded");
+					auto httpResponse = cli.Post(TCHAR_TO_ANSI(*RequestData.Path), headers, TCHAR_TO_ANSI(*RequestData.Body), contentType);
 
 					if (httpResponse)
 					{

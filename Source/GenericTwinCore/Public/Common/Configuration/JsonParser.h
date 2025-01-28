@@ -42,6 +42,7 @@ enum class EJsonDataType : uint8
 	String,
 	Bool,
 	Integer,
+	Integer64,
 	Float,
 	Double,
 	Vector2,
@@ -70,6 +71,8 @@ class GENERICTWINCORE_API FJsonParser
 public:
 
 	FJsonParser();
+
+	explicit FJsonParser(const FString &JsonString);
 
 	explicit FJsonParser(const TSharedPtr<FJsonObject> &RootObjPtr);
 

@@ -64,8 +64,11 @@ public:
 
 	void SetLayerVisibility(int32 LayerId, bool NewVisibility);
 
-	bool HasLayerOfType(const FString LayerType) const;
+	bool HasLayerOfType(const FString &LayerType) const;
 	ULayerBase* GetLayer(int32 LayerId) const;
+
+	ULayerBase* GetLayerOfType(const FString &LayerType) const;
+	TArray<ULayerBase*> GetLayersOfType(const FString &LayerType) const;
 
 	void CreateLayer(const FString &LayerType, const TSharedPtr<FJsonObject> &Parameters);
 

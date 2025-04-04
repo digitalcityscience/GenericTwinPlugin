@@ -185,7 +185,7 @@ void ULayerManager::SetLayerVisibility(int32 LayerId, bool NewVisibility)
 	}
 }
 
-bool ULayerManager::HasLayerOfType(const FString LayerType) const
+bool ULayerManager::HasLayerOfType(const FString &LayerType) const
 {
 	for(const auto &it : m_Layers)
 	{
@@ -195,3 +195,24 @@ bool ULayerManager::HasLayerOfType(const FString LayerType) const
 	return false;
 }
 
+ULayerBase* ULayerManager::GetLayerOfType(const FString &LayerType) const
+{
+	for(const auto &it : m_Layers)
+	{
+		if(it.Value->GetLayerType() == LayerType)
+			return it.Value;
+	}
+	return 0;
+}
+
+
+TArray<ULayerBase*> ULayerManager::GetLayersOfType(const FString &LayerType) const
+{
+	TArray<ULayerBase*> layers;
+	for(const auto &it : m_Layers)
+	{
+		if(it.Value->GetLayerType() == LayerType)
+			layers.Add(it.Value);
+	}
+	return layers;
+}

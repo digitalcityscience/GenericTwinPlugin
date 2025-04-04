@@ -49,6 +49,7 @@ enum class EJsonDataType : uint8
 	Vector3,
 	Vector4,
 	Color,
+	Rotator,
 	Enumerator
 
 };

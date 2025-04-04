@@ -224,6 +224,24 @@ bool FJsonParser::ParseObject(const JsonObjectPtr &JsonObject, const TArray<FJso
 					}
 					break;
 
+				case EJsonDataType::Rotator:
+					if(JsonObject->Values[member.Key]->Type == EJson::Array)
+					{
+						const TArray< TSharedPtr< FJsonValue > > &array = JsonObject->Values[member.Key]->AsArray();
+						if	(	array.Num() == 3
+							&&	array[0]->Type == EJson::Number
+							&&	array[1]->Type == EJson::Number
+							&&	array[2]->Type == EJson::Number
+							)
+						{
+							FRotator *dst = static_cast<FRotator*>(member.Destination);
+							*dst = FRotator(array[0]->AsNumber(), array[1]->AsNumber(), array[2]->AsNumber());
+							curRes = true;
+						}
+					}
+					break;
+
+
 				case EJsonDataType::Color:
 					if(JsonObject->Values[member.Key]->Type == EJson::Array)
 					{
@@ -368,6 +386,7 @@ bool FJsonParser::CheckType(EJsonDataType DesiredType, EJson ValueType)
 		case EJsonDataType::Vector2:
 		case EJsonDataType::Vector3:
 		case EJsonDataType::Vector4:
+		case EJsonDataType::Rotator:
 		case EJsonDataType::Color:
 			return ValueType == EJson::Array;
 	}

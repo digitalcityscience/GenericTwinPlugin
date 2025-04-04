@@ -127,6 +127,8 @@ private:
 
 	TSharedPtr<SResponseData> PerformRequest(const SRequestData &RequestData);
 
+	void ProcessRequest(SRequestData RequestData);
+
 	FString EncodeUrl(const FString &BaseUrl, const TArray<TPair<FString, FString>> &Parameters);
 
 	static FGenericTwinHttpRequestManager			*s_Instance;

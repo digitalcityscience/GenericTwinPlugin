@@ -28,20 +28,9 @@ THE SOFTWARE.
 
 #include "Common/Communication/GenericTwinHttpRequestManager.h"
 
-#include "Windows/AllowWindowsPlatformTypes.h"
-
-#define UI UI_ST
-THIRD_PARTY_INCLUDES_START
-
-#define CPPHTTPLIB_OPENSSL_SUPPORT
-#define CPPHTTPLIB_NO_EXCEPTIONS
-
-#include "httplib.h"
-
-THIRD_PARTY_INCLUDES_END
-#undef UI
-
-#include "Windows/HideWindowsPlatformTypes.h"
+#include "HttpModule.h"
+#include "Interfaces/IHttpRequest.h"
+#include "Interfaces/IHttpResponse.h"
 
 
 DEFINE_LOG_CATEGORY(LogGenericTwinHttpRequestManager);
@@ -159,8 +148,7 @@ bool FGenericTwinHttpRequestManager::SendRequest(int32 RequestId, FOnGenericTwin
 		reqData.OnResponse = OnResponse;
 		reqData.OnError = OnError;
 
-		auto f = std::bind(&FGenericTwinHttpRequestManager::PerformRequest, this, std::placeholders::_1);
-		m_RequestQueue.QueueRequest(reqData, f);
+		ProcessRequest(reqData);
 	}
 
 	return res;
@@ -186,93 +174,72 @@ void FGenericTwinHttpRequestManager::Tick(float DeltaSeconds)
 	}
 }
 
-TSharedPtr<FGenericTwinHttpRequestManager::SResponseData> FGenericTwinHttpRequestManager::PerformRequest(const SRequestData &RequestData)
+void FGenericTwinHttpRequestManager::ProcessRequest(SRequestData RequestData)
 {
-	TSharedPtr<SResponseData> responsePtr(new SResponseData);
-
-	if(responsePtr)
+	FHttpModule &httpModule = FHttpModule::Get();
+	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> request = httpModule.CreateRequest();
+	switch(RequestData.Method)
 	{
-		responsePtr->RequestData = RequestData;
-		responsePtr->Success = false;
+		case ERequestMethod::GET:
+			request->SetVerb(TEXT("GET"));
+			request->SetURL(RequestData.Domain + RequestData.Path);
+			break;
 
-		httplib::Client cli(TCHAR_TO_ANSI(*RequestData.Domain));
-		switch(RequestData.Method)
-		{
-			if(RequestData.TimeoutS > 0)
-				cli.set_connection_timeout(std::chrono::seconds(RequestData.TimeoutS));
-			else
-				cli.set_connection_timeout(std::chrono::seconds(30));
-
-			case ERequestMethod::GET:
-				{
-					UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Sending GET request to %s <-> %s"), *RequestData.Domain, *RequestData.Path);
-
-					auto httpResponse = cli.Get(TCHAR_TO_ANSI(*RequestData.Path));
-
-
-					if (httpResponse)
-					{
-						UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Response received %d"), httpResponse->status);
-						responsePtr->ResponseCode = httpResponse->status;
-						responsePtr->StatusMessage = FString(httpResponse->reason.c_str());
-						if(httpResponse->status == 200)
-						{
-							responsePtr->Response = FString(httpResponse->body.c_str());
-							responsePtr->Success = true;
-						}
-						else if (httpResponse->status == 301)
-						{
-							UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Permanently moved: %s"), *(FString(httpResponse->body.c_str())));
-						}
-						else if (httpResponse->status == 400)
-						{
-							UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Bad request: %s"), *(FString(httpResponse->body.c_str())));
-						}
-					}
-					else
-					{
-						UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Request failed"));
-					}
-				}
-				break;
-
-			case ERequestMethod::POST:
-				{
-					UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Sending POST request to %s <-> %s"), *RequestData.Domain, *RequestData.Path);
-
-					httplib::Headers headers;
-					std::string contentType("application/x-www-form-urlencoded");
-					auto httpResponse = cli.Post(TCHAR_TO_ANSI(*RequestData.Path), headers, TCHAR_TO_ANSI(*RequestData.Body), contentType);
-
-					if (httpResponse)
-					{
-						UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Response received %d"), httpResponse->status);
-						responsePtr->ResponseCode = httpResponse->status;
-						responsePtr->StatusMessage = FString(httpResponse->reason.c_str());
-						if(httpResponse->status == 200)
-						{
-							responsePtr->Response = FString(httpResponse->body.c_str());
-							responsePtr->Success = true;
-						}
-						else if (httpResponse->status == 301)
-						{
-							UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Permanently moved: %s"), *(FString(httpResponse->body.c_str())));
-						}
-						else if (httpResponse->status == 400)
-						{
-							UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Bad request: %s"), *(FString(httpResponse->body.c_str())));
-						}
-					}
-					else
-					{
-						UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Request failed"));
-					}
-				}
-				break;
-		}
+		case ERequestMethod::POST:
+			request->SetVerb(TEXT("POST"));
+			request->SetURL(RequestData.Domain + RequestData.Path);
+			request->SetContentAsString(RequestData.Body);
+			request->SetHeader(TEXT("Content-Type"), TEXT("application/x-www-form-urlencoded"));
+			break;
 	}
 
-	return responsePtr;
+	for( const auto &item : RequestData.Headers)
+	{
+		request->SetHeader(item.Key, item.Value);
+	}
+
+	request->OnProcessRequestComplete().BindLambda(
+		[this, RequestData](
+			FHttpRequestPtr Request,
+			FHttpResponsePtr Response,
+			bool connectedSuccessfully) mutable {
+
+			const int32 responseCode = Response->GetResponseCode();
+			if (connectedSuccessfully)
+			{
+				if(responseCode == 200)
+				{
+					RequestData.OnResponse.ExecuteIfBound(RequestData.RequestId, Response->GetContentAsString());
+				}
+				else
+				{
+					if (responseCode == 301)
+					{
+						UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Permanently moved: %s"), *(Response->GetContentAsString()));
+					}
+					else if (responseCode == 400)
+					{
+						UE_LOG(LogGenericTwinHttpRequestManager, Log, TEXT("Bad request: %s"), *(Response->GetContentAsString()));
+					}
+
+					RequestData.OnError.ExecuteIfBound(RequestData.RequestId, responseCode, Response->GetContentAsString());
+				}
+			}
+			else
+			{
+				switch (Request->GetStatus())
+				{
+					case EHttpRequestStatus::Failed_ConnectionError:
+						UE_LOG(LogGenericTwinHttpRequestManager, Error, TEXT("Connection failed."));
+					default:
+						UE_LOG(LogGenericTwinHttpRequestManager, Error, TEXT("Request failed."));
+				}
+				RequestData.OnError.ExecuteIfBound(RequestData.RequestId, responseCode, Response->GetContentAsString());
+			}
+	});
+
+	request->ProcessRequest();
+
 }
 
 TStatId FGenericTwinHttpRequestManager::GetStatId() const

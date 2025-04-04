@@ -31,10 +31,12 @@ THE SOFTWARE.
 #include "Configuration/StartLocationConfiguration.h"
 #include "Configuration/LayersConfiguration.h"
 #include "Configuration/GeoReferenceConfiguration.h"
-#include "Configuration/Configs/LocalFileCacheConfig.h"
+#include "Configuration/Configs/PawnConfig.h"
 
 #include "Common/Caching/LocalFileCache.h"
 #include "Common/Material/GenericTwinMaterialManager.h"
+
+#include "Control/GenericTwinBasePawn.h"
 
 #include "Utils/FilePathUtils.h"
 
@@ -51,6 +53,7 @@ bool MainConfiguration::loadConfiguration(GenericConfiguration &Configuration, c
 		res &= Configuration.parse<SStartLocationConfiguration>();
 		res &= Configuration.parse<SLayersConfiguration>();
 		res &= Configuration.parse<SLocalFileCacheConfig>();
+		res &= Configuration.parse<SPawnConfig>();
 	}
 
 	return res;
@@ -72,14 +75,14 @@ void MainConfiguration::configure(AGeoReferencingSystem &GeoRefSystem, GenericCo
 
 }
 
-void MainConfiguration::configure(APawn& Pawn, AGeoReferencingSystem& GeoRefSystem, GenericConfiguration& Configuration)
+void MainConfiguration::configure(AGenericTwinBasePawn &Pawn, AGeoReferencingSystem& GeoRefSystem, GenericConfiguration& Configuration)
 {
 	const SStartLocationConfiguration &cfg = Configuration.getConfiguration<SStartLocationConfiguration>();
 
 	FVector ueLocation;
 	GeoRefSystem.GeographicToEngine( FVector(cfg.Location.Y, cfg.Location.X, cfg.Location.Z), ueLocation);
 
-	Pawn.SetActorLocation(ueLocation);
+	Pawn.UpdateLocation(ueLocation, 0.0, 0.0);
 }
 
 void MainConfiguration::configureLocalFileCache(GenericConfiguration& Configuration)

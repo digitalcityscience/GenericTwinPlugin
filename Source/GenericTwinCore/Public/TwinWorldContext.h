@@ -29,11 +29,12 @@ THE SOFTWARE.
 
 #include "CoreMinimal.h"
 #include "Common/Material/GenericTwinMaterialManager.h"
+#include "Control/GenericTwinBasePawn.h"
 #include "TwinWorldContext.generated.h"
 
 class AGeoReferencingSystem;
-class APawn;
 class FSceneView;
+class AGenericTwinBasePlayerController;
 
 class ULayerManager;
 
@@ -44,16 +45,19 @@ struct FTwinWorldContext
 
 public:
 
-	UWorld							*World = 0;
+	UWorld								*World = 0;
 
 	UPROPERTY(BlueprintReadOnly)
-	AGeoReferencingSystem			*GeoReferencingSystem = 0;
+	AGeoReferencingSystem				*GeoReferencingSystem = 0;
 
 	UPROPERTY(BlueprintReadOnly)
-	APawn							*Pawn = 0;
+	AGenericTwinBasePawn				*Pawn = 0;
+
+	UPROPERTY(BlueprintReadOnly)
+	AGenericTwinBasePlayerController	*Controller = 0;
 
 	UPROPERTY()
-	ULayerManager					*LayerManager = 0;
+	ULayerManager						*LayerManager = 0;
 
-	FSceneView						*SceneView = 0;
+	FSceneView							*SceneView = 0;
 };

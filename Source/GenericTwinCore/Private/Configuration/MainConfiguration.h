@@ -31,6 +31,7 @@ class GenericConfiguration;
 class FString;
 
 class AGeoReferencingSystem;
+class AGenericTwinBasePawn;
 
 namespace GenericTwin {
 class LocalFileCache;
@@ -43,7 +44,7 @@ public:
 	static bool loadConfiguration(GenericConfiguration& Configuration, const FString& ConfigFileName);
 
 	static void configure(AGeoReferencingSystem& GeoRefSystem, GenericConfiguration& Configuration);
-	static void configure(APawn& Pawn, AGeoReferencingSystem& GeoRefSystem, GenericConfiguration& Configuration);
+	static void configure(AGenericTwinBasePawn &Pawn, AGeoReferencingSystem& GeoRefSystem, GenericConfiguration& Configuration);
 
 	static void configureLocalFileCache(GenericConfiguration& Configuration);
 

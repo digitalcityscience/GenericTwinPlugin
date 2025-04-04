@@ -197,11 +197,13 @@ void UGenericTwinStaticRTMComponent::BuildMeshSection(const SMeshSectionData &Me
 
 #ifdef USE_PG
 
+	const bool withCollision = true;
+
 	const FRealtimeMeshSectionGroupKey GroupKey = FRealtimeMeshSectionGroupKey::Create(curLOD, FName(TEXT("Section_") + FString::FromInt(m_numSections)));
 	const FRealtimeMeshSectionKey PolyGroup0SectionKey = FRealtimeMeshSectionKey::CreateForPolyGroup(GroupKey, 0);
 	m_Mesh->CreateSectionGroup(GroupKey, StreamSet);
 	// m_Mesh->UpdateSectionConfig(PolyGroup0SectionKey, FRealtimeMeshSectionConfig(ERealtimeMeshSectionDrawType::Static, m_numSections), true);
-	m_Mesh->UpdateSectionConfig(PolyGroup0SectionKey, FRealtimeMeshSectionConfig(ERealtimeMeshSectionDrawType::Dynamic, m_numSections), false);
+	m_Mesh->UpdateSectionConfig(PolyGroup0SectionKey, FRealtimeMeshSectionConfig(ERealtimeMeshSectionDrawType::Dynamic, m_numSections), withCollision);
 
 #else
 

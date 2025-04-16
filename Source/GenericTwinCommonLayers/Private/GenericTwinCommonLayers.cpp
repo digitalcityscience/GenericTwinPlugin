@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include "GenericTwinAssetsLayer.h"
 #include "StaticModelLayer.h"
 #include "StreamingModelLayer.h"
+#include "GenericTwinCompassLayer.h"
 
 #include "Layers/LayerRepository.h"
 
@@ -40,6 +41,7 @@ void FGenericTwinCommonLayersModule::StartupModule()
 	LayerRepository::GetInstance().RegisterLayer(UGenericTwinAssetsLayer::GetLayerMetaData(), &UGenericTwinAssetsLayer::Create, &UGenericTwinAssetsLayer::GetDefaultConfiguration);
 	LayerRepository::GetInstance().RegisterLayer(UStaticModelLayer::GetLayerMetaData(), &UStaticModelLayer::Create, &UStaticModelLayer::GetDefaultConfiguration);
 	LayerRepository::GetInstance().RegisterLayer(UStreamingModelLayer::GetLayerMetaData(), &UStreamingModelLayer::Create, &UStreamingModelLayer::GetDefaultConfiguration);
+	LayerRepository::GetInstance().RegisterLayer(UGenericTwinCompassLayer::GetLayerMetaData(), &UGenericTwinCompassLayer::Create, &UGenericTwinCompassLayer::GetDefaultConfiguration);
 }
 
 void FGenericTwinCommonLayersModule::ShutdownModule()

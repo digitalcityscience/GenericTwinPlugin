@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include "Configuration/LayersConfiguration.h"
 #include "Configuration/GeoReferenceConfiguration.h"
 #include "Configuration/Configs/PawnConfig.h"
+#include "Configuration/Configs/ControllersConfig.h"
 
 #include "Common/Caching/LocalFileCache.h"
 #include "Common/Material/GenericTwinMaterialManager.h"
@@ -54,6 +55,7 @@ bool MainConfiguration::loadConfiguration(GenericConfiguration &Configuration, c
 		res &= Configuration.parse<SLayersConfiguration>();
 		res &= Configuration.parse<SLocalFileCacheConfig>();
 		res &= Configuration.parse<SPawnConfig>();
+		res &= Configuration.parse<SControllersConfig>();
 	}
 
 	return res;

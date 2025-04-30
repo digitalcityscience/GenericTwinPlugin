@@ -46,6 +46,7 @@ THE SOFTWARE.
 #include "Utils/FilePathUtils.h"
 
 #include "GeoReferencingSystem.h"
+
 #include "Kismet/GameplayStatics.h"
 #include "Misc/Paths.h"
 
@@ -367,7 +368,7 @@ void UStaticModelLayer::CreateModelActor(FTwinWorldContext &TwinWorldCtx, Generi
 {
 	const SModelData &mdlData = m_ModelsToLoad[m_curModelToLoad];
 	const FVector &geoLoc = mdlData.GeoLocation;
-	FCartesianCoordinates projectedCoords;
+	FVector projectedCoords;
 	TwinWorldCtx.GeoReferencingSystem->GeographicToProjected(FGeographicCoordinates(geoLoc.X, geoLoc.Y, geoLoc.Z), projectedCoords);
 	FVector actorLocation;
 	TwinWorldCtx.GeoReferencingSystem->ProjectedToEngine(projectedCoords, actorLocation);

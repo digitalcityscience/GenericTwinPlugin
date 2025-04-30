@@ -63,7 +63,6 @@ public class GenericTwinCore : ModuleRules
 			);
 
 		PublicIncludePaths.Add(Path.Combine("$(PluginDir)", "Source/ThirdParty/RygsDXTc"));
-		PublicIncludePaths.Add(Path.Combine("$(PluginDir)", "Source/ThirdParty/cpp-httplib"));
 		PublicIncludePaths.Add(Path.Combine("$(PluginDir)", "Source/ThirdParty/avir"));
 
 	}

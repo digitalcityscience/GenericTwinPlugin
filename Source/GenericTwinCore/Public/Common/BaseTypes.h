@@ -31,6 +31,8 @@ THE SOFTWARE.
 
 #include <type_traits>
 
+class UMaterialInterface;
+
 namespace GenericTwin
 {
 

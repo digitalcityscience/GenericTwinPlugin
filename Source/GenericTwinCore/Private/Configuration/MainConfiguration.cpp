@@ -37,8 +37,6 @@ THE SOFTWARE.
 #include "Common/Caching/LocalFileCache.h"
 #include "Common/Material/GenericTwinMaterialManager.h"
 
-#include "Control/GenericTwinBasePawn.h"
-
 #include "Utils/FilePathUtils.h"
 
 #include "GeoReferencingSystem.h"
@@ -66,6 +64,7 @@ void MainConfiguration::configure(AGeoReferencingSystem &GeoRefSystem, GenericCo
 {
 	const SGeoReferenceConfiguration &geoRefCfg = Configuration.getConfiguration<SGeoReferenceConfiguration>();
 
+	GeoRefSystem.bOriginLocationInProjectedCRS = false;
 	GeoRefSystem.OriginLongitude = geoRefCfg.Origin.X;
 	GeoRefSystem.OriginLatitude = geoRefCfg.Origin.Y;
 	GeoRefSystem.OriginAltitude = geoRefCfg.Origin.Z;
@@ -75,16 +74,6 @@ void MainConfiguration::configure(AGeoReferencingSystem &GeoRefSystem, GenericCo
 
 	GeoRefSystem.ApplySettings();
 
-}
-
-void MainConfiguration::configure(AGenericTwinBasePawn &Pawn, AGeoReferencingSystem& GeoRefSystem, GenericConfiguration& Configuration)
-{
-	const SStartLocationConfiguration &cfg = Configuration.getConfiguration<SStartLocationConfiguration>();
-
-	FVector ueLocation;
-	GeoRefSystem.GeographicToEngine( FVector(cfg.Location.Y, cfg.Location.X, cfg.Location.Z), ueLocation);
-
-	Pawn.UpdateLocation(ueLocation, 0.0, 0.0);
 }
 
 void MainConfiguration::configureLocalFileCache(GenericConfiguration& Configuration)

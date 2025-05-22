@@ -29,7 +29,6 @@ THE SOFTWARE.
 
 #include "CoreMinimal.h"
 #include "Common/Material/GenericTwinMaterialManager.h"
-#include "Control/GenericTwinBasePawn.h"
 #include "TwinWorldContext.generated.h"
 
 class AGeoReferencingSystem;
@@ -51,7 +50,7 @@ public:
 	AGeoReferencingSystem				*GeoReferencingSystem = 0;
 
 	UPROPERTY(BlueprintReadOnly)
-	AGenericTwinBasePawn				*Pawn = 0;
+	APawn								*Pawn = 0;
 
 	UPROPERTY(BlueprintReadOnly)
 	AGenericTwinBasePlayerController	*Controller = 0;

@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include "Serialization/JsonSerializer.h"
 #include "Math/NumericLimits.h"
 
+#include "Kismet/KismetSystemLibrary.h"
 #include "GeoReferencingSystem.h"
 
 DEFINE_LOG_CATEGORY(LogFileSystemTileIndex);
@@ -63,7 +64,8 @@ bool FileSystemTileIndex::Initialize(const FString& TileStreamingFile, TParsePar
 				)
 			{
 				m_TileSize.X = m_TileSize.Y = jsonObject->GetNumberField(TEXT("tile_size"));
-				FString baseUrl = GenericTwin::FPathUtils::MakeAbsolutPath(jsonObject->GetStringField(TEXT("base_url")), FPaths::LaunchDir());
+				const FString baseDir = UKismetSystemLibrary::IsPackagedForDistribution() ? FPaths::LaunchDir() : FPaths::ProjectDir();
+				FString baseUrl = GenericTwin::FPathUtils::MakeAbsolutPath(jsonObject->GetStringField(TEXT("base_url")), baseDir);
 
 				const TArray < TSharedPtr < FJsonValue > >* tilesArray = 0;
 				if (jsonObject->TryGetArrayField(TEXT("tiles"), tilesArray)

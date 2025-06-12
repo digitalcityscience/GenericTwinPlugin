@@ -42,6 +42,7 @@ public class GenericTwinUtils : ModuleRules
 				// ... add private dependencies that you statically link with here ...	
 
 				"Json",
+				"GeoReferencing",
 
 				"GenericTwinCore",
 

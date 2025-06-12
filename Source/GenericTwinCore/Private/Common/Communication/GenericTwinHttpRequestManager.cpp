@@ -204,9 +204,12 @@ void FGenericTwinHttpRequestManager::ProcessRequest(SRequestData RequestData)
 			FHttpResponsePtr Response,
 			bool connectedSuccessfully) mutable {
 
-			const int32 responseCode = Response->GetResponseCode();
-			if (connectedSuccessfully)
+			const bool validResponse = Response.IsValid();
+			if	(	connectedSuccessfully
+				&&	validResponse
+				)
 			{
+				const int32 responseCode = Response->GetResponseCode();
 				if(responseCode == 200)
 				{
 					RequestData.OnResponse.ExecuteIfBound(RequestData.RequestId, Response->GetContentAsString());
@@ -227,14 +230,21 @@ void FGenericTwinHttpRequestManager::ProcessRequest(SRequestData RequestData)
 			}
 			else
 			{
-				switch (Request->GetStatus())
+				if(validResponse)
 				{
-					case EHttpRequestStatus::Failed_ConnectionError:
-						UE_LOG(LogGenericTwinHttpRequestManager, Error, TEXT("Connection failed."));
-					default:
-						UE_LOG(LogGenericTwinHttpRequestManager, Error, TEXT("Request failed."));
+					switch (Request->GetStatus())
+					{
+						case EHttpRequestStatus::Failed_ConnectionError:
+							UE_LOG(LogGenericTwinHttpRequestManager, Error, TEXT("Connection failed."));
+						default:
+							UE_LOG(LogGenericTwinHttpRequestManager, Error, TEXT("Request failed."));
+					}
+					RequestData.OnError.ExecuteIfBound(RequestData.RequestId, Response->GetResponseCode(), Response->GetContentAsString());
 				}
-				RequestData.OnError.ExecuteIfBound(RequestData.RequestId, responseCode, Response->GetContentAsString());
+				else
+				{
+					RequestData.OnError.ExecuteIfBound(RequestData.RequestId, 0, TEXT("Time out"));
+				}
 			}
 	});
 

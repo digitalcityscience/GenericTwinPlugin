@@ -36,6 +36,7 @@ THE SOFTWARE.
 
 #include "Streaming/TileIndexes/FileSystemTileIndex.h"
 #include "Utils/FilePathUtils.h"
+#include "Utils/GenericTwinCoreUtils.h"
 
 #include "Import/ModelImporter.h"
 #include "Import/ModelImportConfiguration.h"
@@ -178,7 +179,8 @@ void UStreamingModelLayer::InitializeLayer(FTwinWorldContext &TwinWorldCtx)
 
 		virtual GenericTwin::TJobBasePtr Execute()
 		{
-			m_Success = m_Layer.m_TileIndex->Initialize(GenericTwin::FPathUtils::MakeAbsolutPath(m_ConfigFileName, FPaths::LaunchDir()), std::bind(&UStreamingModelLayer::ExtractModelParameters, &m_Layer, std::placeholders::_1));
+			const FString baseDir = GenericTwinCoreUtils::IsRunningFromEditor() ? FPaths::ProjectDir() : FPaths::LaunchDir();
+			m_Success = m_Layer.m_TileIndex->Initialize(GenericTwin::FPathUtils::MakeAbsolutPath(m_ConfigFileName, baseDir), std::bind(&UStreamingModelLayer::ExtractModelParameters, &m_Layer, std::placeholders::_1));
 			return GenericTwin::TJobBasePtr();
 		}
 

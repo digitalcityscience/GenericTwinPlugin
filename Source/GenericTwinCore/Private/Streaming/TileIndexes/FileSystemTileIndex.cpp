@@ -26,6 +26,8 @@ THE SOFTWARE.
 **/
 
 #include "Streaming/TileIndexes/FileSystemTileIndex.h"
+#include "Utils/GenericTwinCoreUtils.h"
+#include "Utils/FilePathUtils.h"
 
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
@@ -56,7 +58,7 @@ bool FileSystemTileIndex::Initialize(const FString& TileStreamingFile, TParsePar
 		TSharedPtr<FJsonObject> jsonObject;
 		if (FJsonSerializer::Deserialize(reader, jsonObject))
 		{
-			UE_LOG(LogFileSystemTileIndex, Log, TEXT("Successfully deserialized material mapping config file"));
+			UE_LOG(LogFileSystemTileIndex, Log, TEXT("Successfully deserialized tile description file"));
 
 			if (	jsonObject->HasTypedField<EJson::Number>(TEXT("tile_size"))
 				&&	jsonObject->HasTypedField<EJson::String>(TEXT("base_url"))
@@ -64,8 +66,10 @@ bool FileSystemTileIndex::Initialize(const FString& TileStreamingFile, TParsePar
 				)
 			{
 				m_TileSize.X = m_TileSize.Y = jsonObject->GetNumberField(TEXT("tile_size"));
-				const FString baseDir = UKismetSystemLibrary::IsPackagedForDistribution() ? FPaths::LaunchDir() : FPaths::ProjectDir();
+				const FString baseDir = GenericTwinCoreUtils::IsRunningFromEditor() ? FPaths::ProjectDir() : FPaths::LaunchDir();
 				FString baseUrl = GenericTwin::FPathUtils::MakeAbsolutPath(jsonObject->GetStringField(TEXT("base_url")), baseDir);
+
+				UE_LOG(LogFileSystemTileIndex, Log, TEXT("BaseDir %s BaseURL %s"), *baseDir, *baseUrl);
 
 				const TArray < TSharedPtr < FJsonValue > >* tilesArray = 0;
 				if (jsonObject->TryGetArrayField(TEXT("tiles"), tilesArray)
@@ -132,6 +136,10 @@ bool FileSystemTileIndex::Initialize(const FString& TileStreamingFile, TParsePar
 						res = true;
 					}
 				}
+			}
+			else
+			{
+				UE_LOG(LogFileSystemTileIndex, Error, TEXT("Tile description file") );
 			}
 		}
 		else

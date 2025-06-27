@@ -38,7 +38,9 @@ FString FPathUtils::MakeAbsolutPath(const FString &InPath, const FString &BasePa
 		FString fileName;
 		FString extension;
 		FPaths::Split(BasePath, path, fileName, extension);
-		return FPaths::Combine(path, InPath);
+		FString absPath = FPaths::Combine(path, InPath);
+		FPaths::CollapseRelativeDirectories(absPath);
+		return absPath;
 	}
 
 	return InPath;

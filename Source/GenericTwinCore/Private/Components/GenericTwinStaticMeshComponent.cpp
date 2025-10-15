@@ -29,6 +29,7 @@ THE SOFTWARE.
 
 #include "Components/GenericTwinProcMeshComponent.h"
 #include "Components/GenericTwinStaticRTMComponent.h"
+#include "Components/GenericTwinDynamicMeshComponent.h"
 
 namespace GenericTwin
 {
@@ -37,6 +38,7 @@ IStaticMeshComponent* IStaticMeshComponent::Create(AActor *Actor)
 {
 	// return Actor->CreateDefaultSubobject<UGenericTwinProcMeshComponent>(TEXT("GenericTwinProcMeshComponent"));
 	return Actor->CreateDefaultSubobject<UGenericTwinStaticRTMComponent>(TEXT("RTMMeshComponent"));
+	// return Actor->CreateDefaultSubobject<UGenericTwinDynamicMeshComponent>(TEXT("GenericTwinDynamicMeshComponent"));
 }
 
 IStaticMeshComponent::~IStaticMeshComponent()

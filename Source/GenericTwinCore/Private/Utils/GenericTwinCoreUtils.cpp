@@ -1,8 +1,9 @@
 
 #include "Utils/GenericTwinCoreUtils.h"
 
+namespace GenericTwin {
 
-bool GenericTwinCoreUtils::IsRunningFromEditor()
+bool CoreUtils::IsRunningFromEditor()
 {
 #if WITH_EDITOR
 	return true;
@@ -11,7 +12,9 @@ bool GenericTwinCoreUtils::IsRunningFromEditor()
 #endif
 }
 
-FString GenericTwinCoreUtils::GetProjectDir()
+FString CoreUtils::GetProjectDir()
 {
-	return GenericTwinCoreUtils::IsRunningFromEditor() ? FPaths::ProjectDir() : FPaths::LaunchDir();
+	return IsRunningFromEditor() ? FPaths::ProjectDir() : FPaths::LaunchDir();
 }
+
+}	//	namespace GenericTwin

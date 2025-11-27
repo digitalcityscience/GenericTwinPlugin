@@ -144,6 +144,13 @@ GenericTwin::IStaticMeshComponent::EUploadMode UStreamingModelTile::AddToWorld(c
 		m_Actor = GetWorld()->SpawnActor<AGenericTwinStaticMeshActor>(Location, FRotator::ZeroRotator, FActorSpawnParameters());
 		OnTileVisibilityChanged();
 		m_Actor->Initialize();
+
+		UPrimitiveComponent* cmp = Cast<UPrimitiveComponent>(m_Actor->GetComponentByClass(UPrimitiveComponent::StaticClass()));
+		if(cmp)
+		{
+			cmp->SetCollisionObjectType(ECC_GameTraceChannel1);
+			cmp->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+		}
 	}
 
 	m_TileLoadState = ETileLoadState::Loaded;

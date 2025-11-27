@@ -66,7 +66,7 @@ bool FileSystemTileIndex::Initialize(const FString& TileStreamingFile, TParsePar
 				)
 			{
 				m_TileSize.X = m_TileSize.Y = jsonObject->GetNumberField(TEXT("tile_size"));
-				const FString baseDir = GenericTwinCoreUtils::IsRunningFromEditor() ? FPaths::ProjectDir() : FPaths::LaunchDir();
+				const FString baseDir = GenericTwin::CoreUtils::IsRunningFromEditor() ? FPaths::ProjectDir() : FPaths::LaunchDir();
 				FString baseUrl = GenericTwin::FPathUtils::MakeAbsolutPath(jsonObject->GetStringField(TEXT("base_url")), baseDir);
 
 				UE_LOG(LogFileSystemTileIndex, Log, TEXT("BaseDir %s BaseURL %s"), *baseDir, *baseUrl);

@@ -29,7 +29,9 @@ THE SOFTWARE.
 
 #include "CoreMinimal.h"
 
-class GENERICTWINCORE_API GenericTwinCoreUtils
+namespace GenericTwin {
+
+class GENERICTWINCORE_API CoreUtils
 {
 public:
 
@@ -38,3 +40,5 @@ public:
 	static FString GetProjectDir();
 
 };
+
+}	//	namespace GenericTwin

@@ -179,7 +179,7 @@ void UStreamingModelLayer::InitializeLayer(FTwinWorldContext &TwinWorldCtx)
 
 		virtual GenericTwin::TJobBasePtr Execute()
 		{
-			const FString baseDir = GenericTwinCoreUtils::IsRunningFromEditor() ? FPaths::ProjectDir() : FPaths::LaunchDir();
+			const FString baseDir = GenericTwin::CoreUtils::IsRunningFromEditor() ? FPaths::ProjectDir() : FPaths::LaunchDir();
 			m_Success = m_Layer.m_TileIndex->Initialize(GenericTwin::FPathUtils::MakeAbsolutPath(m_ConfigFileName, baseDir), std::bind(&UStreamingModelLayer::ExtractModelParameters, &m_Layer, std::placeholders::_1));
 			return GenericTwin::TJobBasePtr();
 		}

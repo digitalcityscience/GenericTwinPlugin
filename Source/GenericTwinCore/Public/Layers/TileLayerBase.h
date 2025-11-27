@@ -49,6 +49,7 @@ public:
 
 	void ConfigureTileManager(const FString &Name, const UTileManager::SConfiguration &Configuration);
 	void SetupTiling(GenericTwin::ILocationMapper &LocationMapper, int32 MaxPendingTiles);
+	void ClearTiles();
 
 	virtual void UpdateView(FTwinWorldContext &TwinWorldCtx, float DeltaSeconds) override;
 

@@ -43,6 +43,9 @@ public class GenericTwinCore : ModuleRules
 				"SlateCore",
 				// ... add private dependencies that you statically link with here ...	
 
+				"GeometryCore",
+				"GeometryFramework",
+
 				"GeoReferencing",
 				"Json",
 				"ProceduralMeshComponent",
@@ -62,8 +65,11 @@ public class GenericTwinCore : ModuleRules
 			}
 			);
 
+		PublicIncludePaths.Add(Path.Combine("$(PluginDir)", "Source/ThirdParty/GSL/include"));
 		PublicIncludePaths.Add(Path.Combine("$(PluginDir)", "Source/ThirdParty/RygsDXTc"));
 		PublicIncludePaths.Add(Path.Combine("$(PluginDir)", "Source/ThirdParty/avir"));
+		PublicIncludePaths.Add(Path.Combine("$(PluginDir)", "Source/ThirdParty/ConcaveHull"));
+		PublicIncludePaths.Add(Path.Combine("$(PluginDir)", "Source/ThirdParty/earcut.hpp"));
 
 	}
 }

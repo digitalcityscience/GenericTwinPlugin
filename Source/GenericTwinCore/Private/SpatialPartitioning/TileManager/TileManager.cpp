@@ -25,23 +25,6 @@ THE SOFTWARE.
 
 **/
 
-/*
-
-Idee:
-Das konkrete Tile-Klasse stellt Mapping von WordLocation -> TileId (Tiling schema and tile size in meters) zur Verfügung
-
-UTileManager
-- bekommt FunctionPtr um World Location auf TileId zu mappen
-- bekommt TileSize (für Distanceberechnung)
-- ReferencePosition bekommt er nicht
-
-Tile
-- bringt mapping Function und hat somit volle Kontrolle über Mapping vonm TileId auf data blob (i.e. CityGML file), welches z.B. in eigenem
-  ReferenceSystem abgewlegt ist, siehe Kachelunbg LGV oder Helsinki
-
-
-*/
-
 #include "SpatialPartitioning/TileManager/TileManager.h"
 #include "SpatialPartitioning/TileManager/ILocationMapper.h"
 
@@ -243,7 +226,10 @@ void UTileManager::HandlePendingTiles(const FDateTime &CurrentTime)
 	for(int32 i = 0; i < m_PendingTiles.Num(); ++i)
 	{
 		TileBasePtr &tilePtr = m_PendingTiles[i];
-		if(tilePtr->GetTileLoadState() == ETileLoadState::Loaded)
+		const ETileLoadState tileState = tilePtr->GetTileLoadState();
+		if	(	tileState == ETileLoadState::Loaded
+			||	tileState == ETileLoadState::Empty
+			)
 		{
 			tilesToRemove.Add(i);
 			uint32 tileHeapUsage = 0;
@@ -513,4 +499,21 @@ void UTileManager::Purge(const FDateTime &CurrentTime)
 		UE_LOG(LogTileManager, Log, TEXT("{[%s] Purging done %d/%d Heap %d/%d GPU"), *m_OwnerName, m_HeapMemoryUsage / MB, m_MaxHeapMemoryUsage / MB, m_EstimatedGPUMemoryUsage / MB, m_MaxGPUMemoryUsage / MB);
 
 	}
+}
+
+void UTileManager::ClearTiles()
+{
+	for(auto &item : m_Tiles)
+	{
+		TileBasePtr &tilePtr = item.Value;
+		if(tilePtr)
+		{
+			tilePtr->Unload();
+		}
+
+	}
+	m_Tiles.Empty();
+	m_AllocatedTiles.Empty();
+	m_VisibleTiles.Empty();
+	m_PendingTiles.Empty();
 }

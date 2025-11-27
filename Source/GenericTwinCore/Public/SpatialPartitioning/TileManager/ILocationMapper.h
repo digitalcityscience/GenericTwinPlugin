@@ -47,6 +47,8 @@ public:
 
 	virtual FVector2D GetTileSize() const = 0;
 
+	virtual int32 GetTotalTileCount() const = 0;
+
 };
 
 

@@ -85,6 +85,12 @@ void UTileLayerBase::SetupTiling(GenericTwin::ILocationMapper &LocationMapper, i
 		m_TileManager->SetupTiling(LocationMapper, MaxPendingTiles);
 }
 
+void UTileLayerBase::ClearTiles()
+{
+	if(m_TileManager)
+		m_TileManager->ClearTiles();
+}
+
 bool UTileLayerBase::CreateTileManager()
 {
 	if(m_TileManager == 0)

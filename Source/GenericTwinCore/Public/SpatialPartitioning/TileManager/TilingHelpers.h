@@ -48,7 +48,7 @@ class GENERICTWINCORE_API BasicLocationMapper	:	public	ILocationMapper
 {
 public:
 
-	BasicLocationMapper(const FVector ReferencePosition, const FVector2D &TileSize);
+	BasicLocationMapper(const FVector &ReferencePosition, const FVector2D &TileSize);
 
 	virtual TTileId MapLocationToTileId(const FVector &Location) override;
 
@@ -60,9 +60,44 @@ public:
 
 	virtual FVector2D GetTileSize() const override;
 
+	virtual int32 GetTotalTileCount() const override;
+
 private:
 
 	FVector				m_ReferencePosition;
+	FVector2D			m_TileSize;
+
+};
+
+class GENERICTWINCORE_API AreaLocationMapper	:	public	ILocationMapper
+{
+public:
+
+	AreaLocationMapper(const FVector &LowerLeft, const FVector &UpperRight, const FVector2D &TileSize);
+
+	void SetArea(const FVector &LowerLeft, const FVector &UpperRight);
+
+	virtual TTileId MapLocationToTileId(const FVector &Location) override;
+
+	virtual FVector MapTileIdToLocation(const TTileId &TileId) override;
+
+	virtual FVector GetTileCenter(const TTileId &TileId) const override;
+
+	virtual FBox2d GetTileArea(const TTileId &TileId) const override;
+
+	virtual FVector2D GetTileSize() const override;
+
+	virtual int32 GetTotalTileCount() const override;
+
+	bool IsTileContained(const TTileId &TileId) const;
+
+	void Reset();
+
+private:
+
+	FVector				m_LowerLeft;
+	FVector				m_AreaSize;
+
 	FVector2D			m_TileSize;
 
 };

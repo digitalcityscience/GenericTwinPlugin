@@ -83,6 +83,10 @@ public:
 	template<typename FuncType>
 	static void Dispatch(TFunction<FuncType> Function, GenericTwin::EJobType JobType);
 
+	template<typename FuncType>
+	static void Dispatch(GenericTwin::EJobType JobType, TFunction<FuncType> Function);
+
+
 	/*
 	*	FTickableGameObject
 	*/
@@ -108,6 +112,12 @@ private:
 
 template<typename FuncType>
 inline void FGenericTwinJobDispatcher::Dispatch(TFunction<FuncType> Function, GenericTwin::EJobType JobType)
+{
+	Dispatch(JobType, Function);
+}
+
+template<typename FuncType>
+inline void FGenericTwinJobDispatcher::Dispatch(GenericTwin::EJobType JobType, TFunction<FuncType> Function)
 {
 	class Job	:	public GenericTwin::JobBase
 	{

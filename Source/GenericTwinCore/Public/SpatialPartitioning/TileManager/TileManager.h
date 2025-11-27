@@ -54,14 +54,14 @@ public:
 
 	struct SConfiguration
 	{
-		double					MaxViewDistance = 0.0;
-		double					MaxLoadDistance = 0.0;
-		int32					ViewRectHalfSize = 0;
+		double					MaxViewDistance = 2000.0 * 100.0;
+		double					MaxLoadDistance = 2000.0 * 100.0;
+		int32					ViewRectHalfSize = 4;
 
-		uint32					MaxHeapMemoroyUsage = 0;
-		uint32					MaxGPUMemoryUsage = 0;
+		uint32					MaxHeapMemoroyUsage = 500 * 1024 * 1024;
+		uint32					MaxGPUMemoryUsage = 500 * 1024 * 1024;
 
-		int32					PurgeInterval = 0;
+		int32					PurgeInterval = 120;
 	};
 
 	void Configure(const FString &Name, const SConfiguration &Configuration);
@@ -69,6 +69,8 @@ public:
 	void SetDependency(GenericTwin::LayerDependencyBasePtr Dependency);
 
 	void SetupTiling(GenericTwin::ILocationMapper &LocationMapper, int32 MaxPendingTiles);
+
+	void ClearTiles();
 
 	void Shutdown();
 

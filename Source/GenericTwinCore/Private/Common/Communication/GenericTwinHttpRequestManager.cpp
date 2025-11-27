@@ -67,12 +67,12 @@ FGenericTwinHttpRequestManager::~FGenericTwinHttpRequestManager()
 {
 }
 
-int32 FGenericTwinHttpRequestManager::CreateRequest(const FString &Url, ERequestMethod RequestMethod, const TArray<FString> &Headers)
+int32 FGenericTwinHttpRequestManager::CreateRequest(const FString &Url, ERequestMethod RequestMethod, const TArray<TPair<FString, FString>> &Headers)
 {
 	return CreateRequest(Url, FString(), RequestMethod, Headers);
 }
 
-int32 FGenericTwinHttpRequestManager::CreateRequest(const FString &Domain, const FString &Path, ERequestMethod RequestMethod, const TArray<FString> &Headers)
+int32 FGenericTwinHttpRequestManager::CreateRequest(const FString &Domain, const FString &Path, ERequestMethod RequestMethod, const TArray<TPair<FString, FString>> &Headers)
 {
 	int32 reqId = m_nextRequestId++;
 
@@ -82,6 +82,11 @@ int32 FGenericTwinHttpRequestManager::CreateRequest(const FString &Domain, const
 	request.Domain = Domain;
 	request.Path = Path;
 	request.Method = RequestMethod;
+
+	for(const auto &item : Headers)
+	{
+		request.Headers.Add({item.Key, item.Value});
+	}
 
 	m_Requests.Add(reqId, request);
 

@@ -64,7 +64,7 @@ void UTileLayerBase::UpdateView(FTwinWorldContext &TwinWorldCtx, float DeltaSeco
 			m_TileManager->AddTile(tileId, newTile);
 		}
 
-		m_TileManager->UpdateTiles(curTime);
+		m_TileManager->UpdateTiles(curTime, DeltaSeconds);
 
 		if(m_DrawTileBorders)
 		{

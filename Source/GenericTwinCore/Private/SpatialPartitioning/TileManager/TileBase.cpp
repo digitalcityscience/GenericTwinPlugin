@@ -53,6 +53,10 @@ void UTileBase::Unload()
 {
 }
 
+void UTileBase::UpdateLoading(float DeltaSeconds)
+{
+}
+
 void UTileBase::GetMemoryUsage(uint32 &HeapUsage, uint32 &EstimatedGPUUsage)
 {
 	HeapUsage = m_HeapMemoryUsage;

@@ -203,9 +203,9 @@ void UTileManager::ForEachTile( FProcessTileFunction ProcessTileFunc )
 	}
 }
 
-void UTileManager::UpdateTiles(const FDateTime &CurrentTime)
+void UTileManager::UpdateTiles(const FDateTime &CurrentTime, float DeltaSeconds)
 {
-	HandlePendingTiles(CurrentTime);
+	HandlePendingTiles(CurrentTime, DeltaSeconds);
 
 	CheckForTilesToLoad();
 
@@ -220,16 +220,20 @@ void UTileManager::UpdateTiles(const FDateTime &CurrentTime)
 	}
 }
 
-void UTileManager::HandlePendingTiles(const FDateTime &CurrentTime)
+void UTileManager::HandlePendingTiles(const FDateTime &CurrentTime, float DeltaSeconds)
 {
 	TArray<int32> tilesToRemove;
 	for(int32 i = 0; i < m_PendingTiles.Num(); ++i)
 	{
 		TileBasePtr &tilePtr = m_PendingTiles[i];
 		const ETileLoadState tileState = tilePtr->GetTileLoadState();
-		if	(	tileState == ETileLoadState::Loaded
-			||	tileState == ETileLoadState::Empty
-			)
+		if(tileState == ETileLoadState::Loading)
+		{
+			tilePtr->UpdateLoading(DeltaSeconds);
+		}
+		else if	(	tileState == ETileLoadState::Loaded
+				||	tileState == ETileLoadState::Empty
+				)
 		{
 			tilesToRemove.Add(i);
 			uint32 tileHeapUsage = 0;

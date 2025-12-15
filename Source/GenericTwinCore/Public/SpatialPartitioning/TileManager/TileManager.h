@@ -76,7 +76,7 @@ public:
 
 	void UpdateView(const FDateTime& CurrentTime, APawn &ViewPawn, const FConvexVolume &ViewFrustum, TArray<GenericTwin::TTileId>& MissingTiles);
 
-	void UpdateTiles(const FDateTime& CurrentTime);
+	void UpdateTiles(const FDateTime& CurrentTime, float DeltaSeconds);
 
 	void AddTile(const GenericTwin::TTileId &TileId, const TileBasePtr &TilePtr);
 
@@ -96,7 +96,7 @@ private:
 
 	void CheckForTilesToLoad();
 
-	void HandlePendingTiles(const FDateTime &CurrentTime);
+	void HandlePendingTiles(const FDateTime &CurrentTime, float DeltaSeconds);
 
 	TArray<GenericTwin::TTileId> SortVisibleTilesByDistance();
 

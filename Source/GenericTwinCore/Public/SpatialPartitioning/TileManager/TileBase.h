@@ -62,6 +62,7 @@ public:
 	
 	virtual bool Load();
 	virtual void Unload();
+	virtual void UpdateLoading(float DeltaSeconds);
 
 	virtual void GetMemoryUsage(uint32 &HeapUsage, uint32 &EstimatedGPUUsage);
 	

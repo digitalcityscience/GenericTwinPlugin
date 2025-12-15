@@ -34,11 +34,13 @@ THE SOFTWARE.
 
 DECLARE_LOG_CATEGORY_EXTERN(LogGenericTwinHttpRequestManager, Log, All);
 
-
-DECLARE_DELEGATE_TwoParams(FOnGenericTwinHttpResponse, int32, const FString&);
-DECLARE_DELEGATE_ThreeParams(FOnGenericTwinHttpRequestError, int32, int32, const FString&);
-
 class FHttpModule;
+class IHttpResponse;
+
+DECLARE_DELEGATE_TwoParams(FOnGenericTwinHttpRawResponse, int32, const IHttpResponse&);
+DECLARE_DELEGATE_TwoParams(FOnGenericTwinHttpResponse, int32, const FString&);
+
+DECLARE_DELEGATE_ThreeParams(FOnGenericTwinHttpRequestError, int32, int32, const FString&);
 
 class GENERICTWINCORE_API FGenericTwinHttpRequestManager	:	public FTickableGameObject
 {
@@ -66,6 +68,7 @@ private:
 
 		int32									TimeoutS = -1.0;		
 
+		FOnGenericTwinHttpRawResponse			OnRawResponse;
 		FOnGenericTwinHttpResponse				OnResponse;
 		FOnGenericTwinHttpRequestError			OnError;
 
@@ -97,6 +100,8 @@ public:
 	int32 CreateRequest(const FString &Domain, const FString &Path, ERequestMethod RequestMethod, const TArray<TPair<FString, FString>> &Headers, const TArray<TPair<FString, FString>> &Parameters);
 
 	int32 CreatePostRequestWithBody(const FString &Domain, const FString &Path, const FString &Body, const TArray<TPair<FString, FString>> &Headers);
+
+	bool SendRequest(int32 RequestId, FOnGenericTwinHttpRawResponse OnResponse, FOnGenericTwinHttpRequestError OnError);
 
 	bool SendRequest(int32 RequestId, FOnGenericTwinHttpResponse OnResponse, FOnGenericTwinHttpRequestError OnError);
 

@@ -142,6 +142,25 @@ void FGenericTwinHttpRequestManager::SetTimeout(int32 RequestId, int32 TimeoutIn
 		m_Requests[RequestId].TimeoutS = TimeoutInS;
 }
 
+bool FGenericTwinHttpRequestManager::SendRequest(int32 RequestId, FOnGenericTwinHttpRawResponse OnResponse, FOnGenericTwinHttpRequestError OnError)
+{
+	bool res = false;
+
+	if(m_Requests.Contains(RequestId))
+	{
+		SRequestData &reqData = m_Requests[RequestId];
+
+		reqData.OnRawResponse = OnResponse;
+		reqData.OnError = OnError;
+
+		ProcessRequest(reqData);
+
+		res = true;
+	}
+
+	return res;
+}
+
 bool FGenericTwinHttpRequestManager::SendRequest(int32 RequestId, FOnGenericTwinHttpResponse OnResponse, FOnGenericTwinHttpRequestError OnError)
 {
 	bool res = false;
@@ -154,6 +173,8 @@ bool FGenericTwinHttpRequestManager::SendRequest(int32 RequestId, FOnGenericTwin
 		reqData.OnError = OnError;
 
 		ProcessRequest(reqData);
+
+		res = true;
 	}
 
 	return res;
@@ -215,9 +236,18 @@ void FGenericTwinHttpRequestManager::ProcessRequest(SRequestData RequestData)
 				)
 			{
 				const int32 responseCode = Response->GetResponseCode();
-				if(responseCode == 200)
+				if	(	responseCode == 200
+					||	responseCode == 202
+					)
 				{
-					RequestData.OnResponse.ExecuteIfBound(RequestData.RequestId, Response->GetContentAsString());
+					if(RequestData.OnRawResponse.IsBound())
+					{
+						RequestData.OnRawResponse.ExecuteIfBound(RequestData.RequestId, *Response);
+					}
+					else if(RequestData.OnResponse.IsBound())
+					{
+						RequestData.OnResponse.ExecuteIfBound(RequestData.RequestId, Response->GetContentAsString());
+					}
 				}
 				else
 				{

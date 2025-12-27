@@ -335,16 +335,19 @@ void AGenericTwinGlobePlayerController::StartPan()
 
 void AGenericTwinGlobePlayerController::StopPan()
 {
-	m_ControlMode = EControlMode::DampPanning;
-	m_PanInitialPawnPos.Longitude += m_PanMomentum.X;
-	m_PanInitialPawnPos.Latitude += m_PanMomentum.Y;
-	m_PanMomentum = FVector::Zero();
-	const int32 numSamples = FMath::Min(PanHistorySamples, m_PanDeltaBufferIndex);
-	for(int32 i = 0; i < numSamples; ++i)
-		m_PanMomentum += m_PanDeltaBuffer[i];
-	m_PanMomentum /= static_cast<float> (numSamples);
+	if(m_ControlMode == EControlMode::Panning)
+	{
+		m_ControlMode = EControlMode::DampPanning;
+		m_PanInitialPawnPos.Longitude += m_PanMomentum.X;
+		m_PanInitialPawnPos.Latitude += m_PanMomentum.Y;
+		m_PanMomentum = FVector::Zero();
+		const int32 numSamples = FMath::Min(PanHistorySamples, m_PanDeltaBufferIndex);
+		for (int32 i = 0; i < numSamples; ++i)
+			m_PanMomentum += m_PanDeltaBuffer[i];
+		m_PanMomentum /= static_cast<float> (numSamples);
 
-	UE_LOG(LogGenericTwinGlobePlayerController, Verbose, TEXT("StopPan %s"), *(GenericTwinPawn->GetActorLocation().ToString()) );
+		UE_LOG(LogGenericTwinGlobePlayerController, Verbose, TEXT("StopPan %s"), *(GenericTwinPawn->GetActorLocation().ToString()));
+	}
 }
 
 void AGenericTwinGlobePlayerController::StartRotate()
@@ -368,7 +371,10 @@ void AGenericTwinGlobePlayerController::StartRotate()
 
 void AGenericTwinGlobePlayerController::StopRotate()
 {
-	m_ControlMode = EControlMode::DampRotating;
+	if (m_ControlMode == EControlMode::Rotating)
+	{
+		m_ControlMode = EControlMode::DampRotating;
+	}
 }
 
 void AGenericTwinGlobePlayerController::ZoomIn(float Delta)

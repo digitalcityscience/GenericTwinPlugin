@@ -56,6 +56,8 @@ void ULayerManager::Initialize(FTwinWorldContext &TwinWorldContext, const struct
 
 	LayerRepository &layerRep = LayerRepository::GetInstance();
 
+	UE_LOG(LogLayerManager, Log, TEXT("Initializing layers"));
+
 	for(const SLayerConfiguration &layerCfg : LayersConfiguration.Layers)
 	{
 		ULayerBase *layer = layerRep.CreateLayer(*m_TwinWorldContext, layerCfg.Type, layerCfg.Parameters.IsValid() ? layerCfg.Parameters : TSharedPtr<FJsonObject> (new FJsonObject));
@@ -70,6 +72,10 @@ void ULayerManager::Initialize(FTwinWorldContext &TwinWorldContext, const struct
 			
 			UE_LOG(LogLayerManager, Log, TEXT("Layer of type %s created with custom name of '%s'"), *(layerCfg.Type), *(layerCfg.CustomName));
 			m_LayersToInitialize.Add(layer);
+		}
+		else
+		{
+			UE_LOG(LogLayerManager, Warning, TEXT("Failed to create layer %s"), *layerCfg.Type);
 		}
 	}
 }

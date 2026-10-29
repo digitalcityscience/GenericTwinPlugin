@@ -73,3 +73,22 @@ void ConfigurationJsonBuilder::AddStringValue(const FString &Key, const FString 
 	const FString jsonFormatStr = FString(TEXT("{\"key\":\"{0}\",\"type\":\"{1}\",\"display_name\":\"{2}\",\"is_realtime\":{3},\"value\":\"{4}\"}"));
 	m_JsonString += FString::Format(*jsonFormatStr, {Key, Type, DisplayName, IsRealtime ? TEXT("true") : TEXT("false"), Value });
 }
+
+void ConfigurationJsonBuilder::AddStringOption(const FString &Key, const FString &DisplayName, bool IsRealtime, const TArray<FString> &Options)
+{
+	if(m_addComma)
+		m_JsonString += TEXT(",");
+	m_addComma = true;
+	FString value = TEXT("[");
+	bool addComma = false;
+	for(auto &option : Options)
+	{
+		if(addComma)
+			value += TEXT(",");
+		value += TEXT("\"") + option + TEXT("\"");
+		addComma = true;
+	}
+	value += TEXT("]");
+	const FString jsonFormatStr = FString(TEXT("{\"key\":\"{0}\",\"type\":\"string_option\",\"display_name\":\"{1}\",\"is_realtime\":{2},\"value\":{3}}"));
+	m_JsonString += FString::Format(*jsonFormatStr, {Key, DisplayName, IsRealtime ? TEXT("true") : TEXT("false"), value });
+}

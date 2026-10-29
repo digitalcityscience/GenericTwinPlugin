@@ -15,6 +15,7 @@ public:
 	void Add(const FString &Key, const FString &Type, const FString &DisplayName, bool IsRealtime);
 	void AddLiteralValue(const FString &Key, const FString &Type, const FString &DisplayName, bool IsRealtime, const FString &Value);
 	void AddStringValue(const FString &Key, const FString &Type, const FString &DisplayName, bool IsRealtime, const FString &Value);
+	void AddStringOption(const FString &Key, const FString &DisplayName, bool IsRealtime, const TArray<FString> &Options);
 
 private:
 

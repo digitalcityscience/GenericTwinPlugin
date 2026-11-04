@@ -76,3 +76,8 @@ ELayerCoverage ULayerBase::GetLayerCoverage(const FBox2d &Area) const
 {
 	return ELayerCoverage::Undefined;
 }
+
+bool ULayerBase::GetLayerExtent(FVector &MinExtent, FVector &MaxExtent, GenericTwin::ECoordinateSystem CoordinateSystem) const
+{
+	return false;
+}

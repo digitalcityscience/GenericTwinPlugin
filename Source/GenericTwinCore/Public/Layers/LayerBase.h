@@ -27,8 +27,7 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "CoreMinimal.h"
-
+#include "GenericTwinDefines.h"
 #include "LayerTypes.h"
 
 #include "UObject/NoExportTypes.h"
@@ -68,6 +67,13 @@ public:
 	virtual void UpdateConfiguration(TSharedPtr<FJsonObject> UpdatedConfiguration);
 
 	virtual ELayerCoverage GetLayerCoverage(const FBox2d &Area) const;
+
+	/// @brief Provides extent of this layer's content if possible
+	/// @param[out] MinExtent 
+	/// @param[out] MaxExtent 
+	/// @param CoordinateSystem 
+	/// @return True, if layer's extent could be determined. If false, layer can be considered unbound.
+	virtual bool GetLayerExtent(FVector &MinExtent, FVector &MaxExtent, GenericTwin::ECoordinateSystem CoordinateSystem) const;
 
 	const FString& GetLayerType() const;
 	ELayerContributionType GetLayerContributionType() const;

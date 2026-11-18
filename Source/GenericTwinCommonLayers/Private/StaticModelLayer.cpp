@@ -28,6 +28,7 @@ THE SOFTWARE.
 
 #include "StaticModelLayer.h"
 
+#include "GenericTwin.h"
 #include "TwinWorldContext.h"
 #include "Common/Configuration/ConfigurationJsonBuilder.h"
 #include "Common/Scene/Scene.h"
@@ -341,8 +342,8 @@ UStaticModelLayer::SLoadModelResult* UStaticModelLayer::loadModel(const UStaticM
 			GenericTwin::CalcSceneBoundingsVisitor sbVisitor;
 			scenePtr->Visit(sbVisitor);
 
-			// const FVector &minExtent = sbVisitor.GetMinExtent();
-			// const FVector &maxExtent = sbVisitor.GetMaxExtent();
+			m_MinExtent = sbVisitor.GetMinExtent();
+			m_MaxExtent = sbVisitor.GetMaxExtent();
 
 			// FVector ctrOffset(0.5 * (minExtent.X + maxExtent.X), 0.5 * (minExtent.Y + maxExtent.Y), -minExtent.Z);
 
@@ -381,4 +382,34 @@ void UStaticModelLayer::CreateModelActor(FTwinWorldContext &TwinWorldCtx, Generi
 		modelActor->SetFlattenedScene(ScenePtr);
 		m_Actors.Add(modelActor);
 	}
+}
+
+bool UStaticModelLayer::GetLayerExtent(FVector &MinExtent, FVector &MaxExtent, GenericTwin::ECoordinateSystem CoordinateSystem) const
+{
+	switch(CoordinateSystem)
+	{
+		case GenericTwin::ECoordinateSystem::Unreal:
+			MinExtent = m_MinExtent;
+			MaxExtent = m_MaxExtent;
+			break;
+
+		case GenericTwin::ECoordinateSystem::WGS84:
+			{
+				AGeoReferencingSystem *geoRefSystem = AGenericTwin::GetInstance()->GetWorldContext().GeoReferencingSystem;
+				FGeographicCoordinates geoLocation;
+				geoRefSystem->EngineToGeographic(m_MinExtent, geoLocation);
+				MinExtent = FVector(geoLocation.Longitude, geoLocation.Latitude, geoLocation.Altitude);
+				geoRefSystem->EngineToGeographic(m_MaxExtent, geoLocation);
+				MaxExtent = FVector(geoLocation.Longitude, geoLocation.Latitude, geoLocation.Altitude);
+			}
+			break;
+
+		case GenericTwin::ECoordinateSystem::Projected:
+			MinExtent = m_MinExtent;
+			MaxExtent = m_MaxExtent;
+			break;
+
+	}
+
+	return true;
 }

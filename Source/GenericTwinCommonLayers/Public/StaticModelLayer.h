@@ -100,6 +100,8 @@ public:
 
 	virtual void OnEndPlay(FTwinWorldContext& TwinWorldCtx) override;
 
+	virtual bool GetLayerExtent(FVector &MinExtent, FVector &MaxExtent, GenericTwin::ECoordinateSystem CoordinateSystem) const override;
+
 private:
 
 	UStaticModelLayer();
@@ -123,5 +125,8 @@ private:
 
 	UPROPERTY()
 	TArray<AGenericTwinCustomMeshActor*>	m_Actors;
+
+	FVector									m_MinExtent;
+	FVector									m_MaxExtent;
 
 };
